@@ -1,5 +1,5 @@
 let
-  inputs = import ./deps;
+  inputs = import ./lon.nix;
   system = "x86_64-linux";
 
   pkgs = import inputs.nixpkgs {
@@ -13,8 +13,8 @@ let
               src = pkgs.fetchFromGitHub {
                 owner = "camillemndn";
                 repo = "dda";
-                rev = "v0.0.0.9017";
-                hash = "sha256-MOQNNQgOZOss7zfCDy0oBzfOYYTs5zl6M/ltOdnYHvI=";
+                rev = "v0.0.0.9018";
+                hash = "sha256-ReqTqTTKJC9e0OVabLi9f5vXFZKVAHPQYaZ7rlIxUQU=";
               };
               propagatedBuildInputs = [
                 fda
@@ -86,7 +86,7 @@ in
 rec {
   devShells.default = pkgs.mkShell {
     nativeBuildInputs = with pkgs; [
-      npins
+      lon
       (quarto.override { extraRPackages = r-deps; })
       (rstudioWrapper.override { packages = r-deps; })
       (rWrapper.override { packages = r-deps; })
