@@ -13,9 +13,13 @@ let
               src = pkgs.fetchFromGitHub {
                 owner = "camillemndn";
                 repo = "dda";
-                rev = "v0.0.0.9018";
-                hash = "sha256-ReqTqTTKJC9e0OVabLi9f5vXFZKVAHPQYaZ7rlIxUQU=";
+                rev = "v0.0.0.9019";
+                hash = "sha256-Ht22ouAz/E6m+eUuHmSObYdNYdjga7zpW1uBGRSVyFw=";
               };
+              nativeBuildInputs = [
+                pkgs.cargo
+                pkgs.rustc
+              ];
               propagatedBuildInputs = [
                 fda
                 GGally
@@ -75,7 +79,7 @@ let
       rfc101 = {
         enable = true;
         name = "RFC-101 formatting";
-        entry = "${pkgs.lib.getExe pkgs.nixfmt-rfc-style}";
+        entry = "${pkgs.lib.getExe pkgs.nixfmt}";
         files = "\\.nix$";
       };
       commitizen.enable = true;
@@ -88,7 +92,6 @@ rec {
     nativeBuildInputs = with pkgs; [
       lon
       (quarto.override { extraRPackages = r-deps; })
-      (rstudioWrapper.override { packages = r-deps; })
       (rWrapper.override { packages = r-deps; })
       texliveFull
       librsvg
