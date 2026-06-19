@@ -8,13 +8,12 @@ df-print: kable
 lang: en
 lightbox: true
 link-external-newwindow: true
-notebook-links: false
 number-sections: true
 warning: false
 
 format:
   html:
-    theme: cosmo
+    theme: zephyr
     code-fold: true
     css: styles.css
     execute:
@@ -34,6 +33,7 @@ format:
     echo: false
     fig-format: pdf
     link-citations: true
+    notebook-links: false
     pdf-engine: pdflatex
 
 knitr:

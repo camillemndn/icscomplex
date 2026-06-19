@@ -14,16 +14,34 @@ let
                 owner = "camillemndn";
                 repo = "dda";
                 rev = "v0.0.0.9019";
-                hash = "sha256-Ht22ouAz/E6m+eUuHmSObYdNYdjga7zpW1uBGRSVyFw=";
+                hash = "sha256-yCwR9+pEULJ4s6nseWIg/xSrE1wj1mXyvPaJLQF7hH8=";
               };
               nativeBuildInputs = [
                 pkgs.cargo
                 pkgs.rustc
               ];
               propagatedBuildInputs = [
+                dplyr
+                fda
+                ggplot2
+                tidyr
+              ];
+            };
+
+            ICSFun = buildRPackage {
+              name = "ICSFun";
+              src = pkgs.fetchFromGitHub {
+                owner = "camillemndn";
+                repo = "ICSFun";
+                rev = "v0.0.0.9001";
+                hash = "sha256-5hgcPy1l51Ifqnmh7ETjQ4YoF62b7XYhpW2KotUOM1U=";
+              };
+              propagatedBuildInputs = [
+                compositions
                 fda
                 GGally
                 ggplot2
+                gridExtra
                 ICS
                 ICSOutlier
                 memoise
@@ -60,6 +78,7 @@ let
     dda
     DeBoinR
     fdaoutlier
+    ICSFun
     sf
     tf
     tidyfun

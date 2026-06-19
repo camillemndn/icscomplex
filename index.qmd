@@ -101,6 +101,13 @@ citation:
   container-title: Journal of Multivariate Analysis
 ---
 
+```{r setup}
+#| include: false
+
+source("setup.R")
+set.seed(0)
+```
+
 # Introduction
 
 The invariant coordinate selection (ICS) method was introduced in a
@@ -229,9 +236,1992 @@ perspectives. Supplementary material on ICS, a reminder on Bayes spaces,
 as well as proofs of the propositions and corollaries are given in the
 Appendix.
 
-{{< include ics/index.qmd >}}
-{{< include outlier-detection/index.qmd >}}
-{{< include application/index.qmd >}}
-{{< include conclusion/index.qmd >}}
-{{< include acknowledgements/index.qmd >}}
-{{< include appendix/index.qmd >}}
+# ICS for complex data {#sec-icsfree}
+
+A naive approach to ICS for complex data would be to apply multivariate
+ICS to coordinate vectors in a basis. This not only ignores the metric
+on the space when the basis is not orthonormal, but also gives a
+potentially different ICS method for each choice of basis [as in
+@archimbaud_ics_2022]. Defining a unique coordinate-free ICS problem
+avoids defining multiple ICS methods and having to discuss the potential
+links between them, thus making our approach more intrinsic. In
+particular, it leads to more interpretable invariant components that are
+of the same nature as the considered complex random objects. In the case
+of functional or distributional data, the usual framework assumes that
+the data objects reside in an infinite-dimensional Hilbert space, which
+leads to non-orthonormal bases and incomplete inner product spaces. We
+choose to restrict our attention to finite-dimensional approximations of
+the data in the framework of Euclidean spaces, which are particularly
+suitable here because ICS is known to fail when the dimension is larger
+than the sample size [@tyler_note_2010]. This suggests that an ICS
+method for infinite-dimensional Hilbert spaces would require modifying
+the core of the method, which is beyond the scope of this work.
+
+## A coordinate-free ICS problem {#sec-icsproblem}
+
+In order to generalise invariant coordinate selection
+[@tyler_invariant_2009 def. 1] to a coordinate-free framework in a
+Euclidean space $E$, we need to eliminate any reference to a coordinate
+system, which means replacing coordinate vectors by abstract vectors,
+matrices by linear mappings, bases or quadratic forms, depending on the
+context. This coordinate emancipation procedure will ensure that our
+definition of ICS for an $E$-valued random object $X$ does not depend on
+any particular choice of basis of $E$ to represent $X$.
+
+Following this methodology, we are able to immediately generalise the
+definition of (affine equivariant) scatter operators from random vectors
+in $E = \mathbb R^p$ [as defined in @tyler_invariant_2009 eq. 3] to
+random objects in a Hilbert space $E$. This is a perfect example of how
+the coordinate-free framework can be used to extend existing work to
+infinite-dimensional spaces. For further details, see @def-scatter in the
+Appendix. A notable difference from [@tyler_invariant_2009] is that we
+work directly with random objects instead of their underlying
+distributions. In particular, we introduce an affine invariant space
+$\mathcal E$ of random objects on which the scatter operators are
+defined and to which we assume that $X$ belongs. For example,
+$\mathcal E = L^p (\Omega, E)$ corresponds to assuming the existence of
+the $p$ first moments of $\| X \|$.
+
+Again, emancipating from coordinates allows us to naturally generalise
+ICS to complex random objects in a Euclidean space.
+
+::: {#def-ics}
+# Coordinate-free ICS
+Let $(E, \langle \cdot, \cdot \rangle)$ be a Euclidean space of dimension
+$p$, $\mathcal E \subseteq L^1 (\Omega, E)$ an affine invariant set of
+integrable $E$-valued random objects, $S_1$ and $S_2$ two scatter
+operators on $\mathcal E$ and $X \in \mathcal E$. The invariant
+coordinate selection problem $\operatorname{ICS} (X,{S_1},{S_2})$ is to
+find a basis ${H} = (h_1, \dots, h_p)$ of $E$ and a finite
+non-increasing real sequence
+$\Lambda = (\lambda_1 \geq \ldots \geq \lambda_p)$ such that
+$$
+\operatorname{ICS} (X,{S_1},{S_2}) : \left\{ \begin{array}{lcl}
+\langle{S_1} [X] h_j, h_{j'} \rangle &= \delta_{jj'} \\
+\langle{S_2} [X] h_j, h_{j'} \rangle &= \delta_{jj'} \lambda_j
+\end{array} \text{ for all } 1 \leq j,j' \leq p, \right.
+$${#eq-icsdef} where
+$\delta_{jj'}$ equals $1$ if $j=j'$ and $0$ otherwise. Such a basis $H$
+is called an $\operatorname{ICS} (X,{S_1},{S_2})$ eigenbasis, whose
+elements are $\operatorname{ICS} (X,{S_1},{S_2})$ eigenobjects. Such a
+$\Lambda$ is called an $\operatorname{ICS} (X,{S_1},{S_2})$ spectrum,
+whose elements are called $\operatorname{ICS} (X,{S_1},{S_2})$
+eigenvalues or generalised kurtosis. Given an
+$\operatorname{ICS} (X,{S_1},{S_2})$ eigenbasis $H$ and
+$1 \leq j \leq p$, the real number
+$$z_j = \langle X - \mathbb EX, h_j \rangle$${#eq-ic} is called the $j$-th
+invariant coordinate (in the eigenbasis $H$).
+:::
+
+In @def-ics, our coordinate emancipation procedure does not yield a generalisation to
+infinite-dimensional Hilbert spaces, where a basis $H$ would not be
+properly defined as it is not necessarily orthonormal.
+
+::: {.remark}
+# Multivariate case
+If $E = \mathbb R^p$, we identify
+$S_1$ and $S_2$ with their associated $(p\times p)$-matrices in the
+canonical basis, and we identify an ICS eigenbasis $H$ with the
+$(p\times p)$-matrix of its vectors stacked column-wise, so that we
+retrieve the classical formulation of invariant coordinate selection by
+@tyler_invariant_2009.
+:::
+
+In the ICS problem @eq-icsdef, the scatter operators $S_1$ and $S_2$ do not
+play symmetrical roles. This is because the usual method of solving
+$\operatorname{ICS} (X,{S_1},{S_2})$ is to use the associated inner
+product of $S_1 [X]$, which requires $S_1 [X]$ to be injective. In that
+case, @prp-existence in the Appendix proves the existence of
+solutions to the ICS problem.
+
+Another way to understand the coordinate-free nature of this ICS problem
+is to work with data isometrically represented in two spaces and to
+understand how we can relate a given ICS problem in the first space to a
+corresponding ICS problem in the second. This is the object of the
+following proposition, which will be used in @sec-icscoord.
+
+::: {#prp-isometry}
+Let $\varphi : (E, \langle \cdot, \cdot \rangle_E) \rightarrow (F, \langle \cdot, \cdot \rangle_F)$
+be an isometry between two Euclidean spaces of dimension $p$,
+$\mathcal E \subseteq L^1 (\Omega, E)$ an affine invariant set of
+integrable $E$-valued random objects, $S_1^{\mathcal E}$ and
+$S_2^{\mathcal E}$ two affine equivariant scatter operators on
+$\mathcal E$. Then:
+
+(a) $\mathcal F = \varphi (\mathcal E) = \{ \varphi (X^{\mathcal E}), X^{\mathcal E} \in \mathcal E \}$
+    is an affine invariant set of integrable $F$-valued random objects,
+    and we denote
+    $X^{\mathcal F} = \varphi(X^{\mathcal E}) \in \mathcal F$ whenever
+    $X^{\mathcal E} \in \mathcal E$;
+
+(b) $S_\ell^{\mathcal F} :  X^{\mathcal F} \in \mathcal F \mapsto \varphi \circ S_\ell^{\mathcal E} [X^{\mathcal E}] \circ \varphi^{-1}, \ell \in \{1,2\},$
+    are two affine equivariant scatter operators on $\mathcal F$;
+
+(c) $H^{\mathcal F} = \varphi(H^{\mathcal E}) = (\varphi (h_1^{\mathcal E}), \dots, \varphi (h_p^{\mathcal E}))$
+    is a basis of $F$ whenever
+    $H^{\mathcal E}  = (h_1^{\mathcal E}, \dots, h_p^{\mathcal E})$ is a
+    basis of $E$.
+
+For any $E$-valued random object $X^{\mathcal E} \in \mathcal E$, any
+basis $H^{\mathcal E} = (h_1^{\mathcal E}, \dots, h_p^{\mathcal E})$ of
+$E$, and any finite non-increasing real sequence
+$\Lambda = (\lambda_1 \geq \ldots \geq \lambda_p)$ the following
+assertions are equivalent:
+
+(i) $(H^{\mathcal E}, \Lambda)$ solves
+    $\operatorname{ICS} (X^{\mathcal E}, S_1^{\mathcal E}, S_2^{\mathcal E})$
+    in the space $E$
+
+(ii) $(H^{\mathcal F}, \Lambda)$ solves
+     $\operatorname{ICS} (X^{\mathcal F}, S_1^{\mathcal F}, S_2^{\mathcal F})$
+     in the space $F$.
+:::
+
+## The case of weighted covariance operators {#sec-weighted}
+
+A difficulty in ICS is to find interesting scatter operators that
+capture the non-ellipticity of the random object. Usually, for
+multivariate data, we use the pair of scatter matrices
+$(\operatorname{Cov}, \operatorname{Cov}_4)$. In this section, we define
+an important family of scatter operators, namely the weighted covariance
+operators, which contains both $\operatorname{Cov}$ and
+$\operatorname{Cov}_4$. They are explicitly defined by coordinate-free
+formulas which allow us to relate ICS problems using weighted covariance
+operators between any two Euclidean spaces. We denote by
+$\mathcal{GL} (E)$ the group of linear automorphisms of $E$ and by
+$A^{1/2}$ the unique non-negative square root of a linear mapping $A$.
+
+::: {#def-covw}
+# Weighted covariance operators
+For any measurable function $w: \mathbb R^+ \rightarrow \mathbb R$, let
+$$
+\mathcal E_w = \left\{ X \in L^2 (\Omega, E) \left| \, \operatorname{Cov}[X] \in \mathcal{GL}(E) \\
+\text{ and } w \left( \left\| \operatorname{Cov}[X]^{-1/2} (X - \mathbb EX) \right\| \right) \| X - \mathbb EX \| \in L^2 (\Omega, \mathbb R) \right. \right\}.
+$$
+Note that $\mathcal E_w$ is an affine invariant set of integrable
+$E$-valued random objects. For $X \in \mathcal E_w$, we define the
+$w$-weighted covariance operator $\operatorname{Cov}_w [X]$ by
+$$
+\forall (x,y) \in E^2, \langle \operatorname{Cov}_w [X] x, y \rangle =
+\mathbb E \left[ w^2 \left( \left\| \operatorname{Cov}[X]^{-1/2} (X - \mathbb EX) \right\| \right) \langle X - \mathbb EX, x \rangle \langle X - \mathbb EX, y \rangle \right].
+$${#eq-covw}
+When necessary, we will also write $\operatorname{Cov}_w^E$ for the
+$w$-weighted covariance operator on $E$ to avoid any ambiguity. It is
+easy to check that weighted covariance operators are affine equivariant
+scatter operators in the sense of @def-scatter.
+:::
+
+::: {#exm-cov}
+If $w=1$, we retrieve $\operatorname{Cov}$, the usual
+covariance operator on $L^2 (\Omega, E)$.
+:::
+
+::: {#exm-cov4}
+If for $x \in \mathbb R^+$, $w(x) = (p+2)^{-1/2} x$, we
+obtain the fourth-order moment operator $\operatorname{Cov}_4$ [as in
+@nordhausen_usage_2022 for the case $E = \mathbb R^p$] on
+$\mathcal E_w = \left\{ X \in L^4 (\Omega, E) \, | \, \operatorname{Cov}[X] \in \mathcal{GL} (E) \right\}$.
+:::
+
+The following corollary applies @prp-isometry to the
+pair of $w_\ell$-weighted covariance operators
+$S_\ell^{\mathcal E} = \operatorname{Cov}_{w_\ell}, \ell \in  \{ 1, 2 \}$,
+for which the corresponding $S_\ell^{\mathcal F}$ are exactly the
+$w_\ell$-weighted covariance operators on $F$.
+
+::: {#cor-isometry-covw}
+Let $(E, \langle \cdot, \cdot \rangle_E) \overset{\varphi}{\rightarrow} (F, \langle \cdot, \cdot \rangle_F)$
+be an isometry between two Euclidean spaces of dimension $p$ and
+$w_1, w_2 : \mathbb R^+ \rightarrow \mathbb R$ two measurable functions.
+For any integrable $E$-valued random object
+$X \in \mathcal E_{w_1} \cap \mathcal E_{w_2}$ (with the notations from
+@def-covw), the equality
+$$\operatorname{Cov}_{w_\ell}^F [\varphi(X)] = \varphi \circ \operatorname{Cov}_{w_\ell}^E [X] \circ \varphi^{-1}$${#eq-isometry-covw}
+holds for $\ell \in  \{ 1, 2 \}$, as well as the equivalence between the
+following assertions, for any basis $H = (h_1, \dots, h_p)$ of $E$, and
+any finite non-increasing real sequence
+$\Lambda = (\lambda_1 \geq \ldots \geq \lambda_p)$:
+
+(i) $(H, \Lambda)$ solves
+    $\operatorname{ICS} (X, \operatorname{Cov}_{w_1}^E, \operatorname{Cov}_{w_2}^E)$
+    in the space $E$.
+
+(ii) $(\varphi(H), \Lambda)$ solves
+     $\operatorname{ICS} (\varphi(X), \operatorname{Cov}_{w_1}^F, \operatorname{Cov}_{w_2}^F)$
+     in the space $F$.
+:::
+
+## Implementation {#sec-icscoord}
+
+In order to implement coordinate-free ICS in any Euclidean space $E$, we
+restrict our attention to the pair
+$(\operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$ of weighted
+covariance operators defined in @sec-weighted.
+Note that we could also transport other known scatter matrices, such as
+the Minimum Covariance Determinant [defined in
+@rousseeuw_multivariate_1985], back to the space $E$ using @prp-isometry, but
+this approach would no longer be coordinate-free.
+
+We now choose a basis $B=(b_1, \dots, b_p)$ of $E$ in order to represent
+each element $x$ of $E$ by its coordinate vector
+$[x]_B = ([x]_{b_1} \dots [x]_{b_p})^\top \in \mathbb R^p$. Then, the
+following corollary of @prp-isometry allows
+one to relate the coordinate-free approach in $E$ to three different
+multivariate approaches applied to the coordinate vectors in any basis
+$B$ of $E$, where the Gram matrix
+$G_B = (\langle b_j, b_{j'} \rangle)_{1 \leq j,j' \leq p}$ appears,
+accounting for the non-orthonormality of $B$. Notice that, since the ICS
+problem has been defined in @sec-icsproblem
+without any reference to a particular basis, it is obvious that the
+basis $B$ has no influence on ICS.
+
+::: {#cor-coord}
+Let $(E, \langle \cdot, \cdot \rangle)$ be a Euclidean
+space of dimension $p$, $w_1, w_2 : \mathbb R^+ \rightarrow \mathbb R$
+two measurable functions. Let $B$ be any basis of $E$,
+$G_B = (\langle b_j, b_{j'} \rangle)_{1 \leq j,j' \leq p}$ its Gram
+matrix and $[ \cdot ]_B$ the linear map giving the coordinates in $B$.
+For any $X \in \mathcal E_{w_1} \cap \mathcal E_{w_2}$ (with the
+notations from @def-covw), any basis ${H} = (h_1, \dots, h_p)$ of $E$, and
+any finite non-increasing real sequence
+$\Lambda = (\lambda_1 \geq \ldots \geq \lambda_p)$ the following
+assertions are equivalent:
+
+(1) $(H, \Lambda)$ solves
+    $\operatorname{ICS} (X, \operatorname{Cov}_{w_1}^E, \operatorname{Cov}_{w_2}^E)$
+    in the space $E$
+
+(2) $({G_B^{1/2}} [H]_B, \Lambda)$ solves
+    $\operatorname{ICS} ({G_B^{1/2}} [X]_B, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+    in the space $\mathbb R^p$
+
+(3) $([H]_B, \Lambda)$ solves
+    $\operatorname{ICS} ({G_B} [X]_B, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+    in the space $\mathbb R^p${#eq-third}
+
+(4) $({G_B} [H]_B, \Lambda)$ solves
+    $\operatorname{ICS} ([X]_B, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+    in the space $\mathbb R^p$
+
+*where $[H]_B$ denotes the non-singular $p \times p$ matrix representing
+the basis $([h_1]_B, \dots, [h_p]_B)$ of $\mathbb R^p$.*
+:::
+
+In practice, we prefer Assertion (3) (transforming the data by
+the Gram matrix of the basis) because it is the
+only one that does not require inverting the Gram matrix in order to
+recover the eigenobjects. Then, the problem is reduced to multivariate
+ICS, already implemented in the R package `ICS` using the QR
+decomposition [@archimbaud_numerical_2023]. This QR approach enhances
+stability compared to methods based on a joint diagonalisation of two
+scatter matrices, which can be numerically unstable in some
+ill-conditioned situations.
+
+After we obtain the ICS eigenelements, we can use them to reconstruct
+the original random object, in order to interpret the contribution of
+each invariant component. @prp-reconstruction in the Appendix generalises the
+multivariate reconstruction formula to complex data. In order to
+implement this reconstruction, we need the coordinates of the elements
+of the dual ICS eigenbasis. Identifying the basis $[H]_B$ with the
+matrix whose columns are its vectors, the dual basis $[H^*]_B$ is the
+matrix $$[H^*]_B = \left( [H]_B^\top G_B \right)^{-1}.$$
+
+::: {.remark}
+# Empirical ICS and estimation
+In order to work with
+samples of complex random objects, we can study the particular case of a
+finite $E$-valued random object $X$ where we have a fixed sample
+$D_n=(x_1, \dots, x_n)$ and we assume that $X$ follows the empirical
+probability distribution $P_{D_n}$ of $(x_1, \dots, x_n)$. In that case,
+the expressions (in @def-covw) for instance) of the form $\mathbb E f(X)$ for any
+function $f$ are discrete and equal to $\frac1n \sum_{i=1}^n f(x_i)$.
+
+Now, let us assume that we observe an i.i.d. sample
+$D_n = (X_1, \dots, X_n)$ following the distribution of an unknown
+$E$-valued random object $X_0$. We can estimate solutions of the problem
+$\operatorname{ICS} (X_0, S_1, S_2)$ from @def-ics by working
+conditionally on the data $(X_1, \dots, X_n)$ and taking the particular
+case where $X$ follows the empirical probability distribution $P_{D_n}$.
+This defines estimates of the $\operatorname{ICS} (X_0, S_1, S_2)$
+eigenobjects as solutions of an ICS problem involving empirical scatter
+operators. Since the population version of ICS for a complex random
+object $X \in E$ is more concise than its sample counterpart for
+$D_n = (X_1, \dots, X_n)$, we shall use the notations of the former in
+the next sections.
+:::
+
+## ICS for compositional data {#sec-icscoda}
+
+The specific case of coordinate-free ICS for compositional data is
+equivalent to the approach of @ruiz-gazen_detecting_2023. To see this,
+let us consider the simplex
+$E = (\mathcal S^{p+1}, \oplus, \odot, \langle \cdot, \cdot \rangle_{\mathcal S^{p+1}})$
+of dimension $p$ in $\mathbb R^{p+1}$ with the Aitchison structure
+[@pawlowskyglahn_modeling_2015]. The results from 5.1
+(resp. 5.2) in [@ruiz-gazen_detecting_2023] can be recovered by
+applying @cor-isometry-covw to any isometric log-ratio transformation
+[see @pawlowskyglahn_modeling_2015 for a definition] (resp. the centred
+log-ratio transformation).
+
+@cor-coord gives a new characterisation of the problem
+$\operatorname{ICS} (X, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+using additive log-ratio transformations. For a given index
+$1 \leq j \leq p$, let $B_j = (b_1, \dots, b_p)$ denote the basis of
+$\mathcal S^{p+1}$ corresponding to the $\operatorname{alr}_j$
+transformation, i.e. obtained by taking the canonical basis of
+$\mathbb R^{p+1}$, removing the $j$-th vector and applying the
+exponential. In that case, it is easy to compute the $p \times p$ Gram
+matrix of $B_j$:
+$$G_{B_j} = I_p - \frac1{p+1} \mathbf 1_p \mathbf 1_p ^\top = \begin{pmatrix}
+        1 - \frac1{p+1} & -\frac1{p+1} & \dots & -\frac1{p+1} \\
+        -\frac1{p+1} & \ddots & \ddots & \vdots \\
+        \vdots & \ddots & \ddots & - \frac1{p+1} \\
+        -\frac1{p+1} & \dots & -\frac1{p+1} & 1 - \frac1{p+1}
+    \end{pmatrix}.$$ Then, we get the equivalence between the following
+two ICS problems:
+
+1.  $(H, \Lambda)$ solves
+    $\operatorname{ICS} (X, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+    in the space $\mathcal S^{p+1}$
+
+2.  $(\operatorname{alr}_j (H), \Lambda)$ solves
+    $\operatorname{ICS} (\operatorname{clr} (X)^{(j)}, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+    in the space $\mathbb R^p$
+
+where $\operatorname{clr} (x)^{(j)} = G_{B_j} \operatorname{alr}_j (x)$
+is the centred log-ratio transform of $x \in \mathcal S^{p+1}$ from
+which the $j$-th coordinate has been removed. This suggests a new and
+fastest implementation of invariant coordinate selection for
+compositional data, in an unconstrained space and only requiring the
+choice of an index $j$ instead of a full contrast matrix.
+
+## ICS for functional data {#sec-icsfun}
+
+The difficulty of functional data (in the broader sense, encompassing
+density data) is twofold: first, functions are usually analysed within
+the infinite-dimensional Hilbert space $L^2 (a,b)$, second, a random
+function is almost never observed for every argument, but rather on a
+discrete grid. This grid can be regular or irregular, deterministic or
+random, dense (the grid spacing goes to zero) or sparse. We describe a
+general framework for adapting coordinate-free ICS to functional data,
+solving both difficulties at the same time by smoothing the observed
+values into a random function $u$ that belongs to a Euclidean subspace
+$E$ of $L^2 (a,b)$.
+
+### Choosing an approximating Euclidean subspace
+
+We usually choose polynomial spaces, spline spaces with given knots and
+order, or spaces spanned by a truncated Hilbert basis of $L^2 (a,b)$. In
+practice, this choice also depends on the preprocessing method that we
+have in mind to smooth discrete observations into functions.
+
+### Preprocessing the observations into the approximating space
+
+Considering a dense, deterministic grid $(t_1, \dots, t_N)$, we need to
+reconstruct an $E$-valued random function $u$ from its noisy observed
+values $(u(t_1) + \varepsilon_1, \dots, u(t_N) + \varepsilon_N)$. There
+are many well-documented approximation techniques to carry out this
+preprocessing step, such as interpolation, spline smoothing, or Fourier
+methods [for a detailed presentation, see @eubank_nonparametric_2014].
+
+### Solving ICS in the approximating space
+
+Once we have obtained an $E$-valued random function $u$, we can apply
+the method described in @sec-icscoord to reduce
+$\operatorname{ICS} (u, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+to a multivariate problem on the coordinates in a basis of $E$. In
+particular, for an orthonormal basis $B$ of $E$ (such as a Fourier basis
+or a Hermite polynomial basis), @cor-coord gives the
+equivalence between the following two assertions:
+
+1.  $(H, \Lambda)$ solves
+    $\operatorname{ICS} (u, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+    in the space $E$
+
+2.  $([H]_B, \Lambda)$ solves
+    $\operatorname{ICS} ([u]_B, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+    in the space $\mathbb R^p$.
+
+If $E$ is a finite-dimensional spline space, we usually work with the
+coordinates of $u$ in a B-spline basis of $E$, but then we should take
+into account its Gram matrix, as in @cor-coord.\
+ICS has previously been defined for multivariate functional data by
+@archimbaud_ics_2022, who define a pointwise method and a global method.
+Unlike the pointwise approach, which is specific to multivariate
+functional data, the global method can also be applied to univariate
+functional data in $L^2 (a,b)$, as it corresponds to applying
+multivariate ICS to truncated coordinate vectors in a Hilbert basis of
+$L^2 (a,b)$. The above framework retrieves the global method in
+[@archimbaud_ics_2022] as a particular case when taking a Hilbert basis
+$B$ of $L^2 (a,b)$ and solving coordinate-free ICS in the space $E$
+spanned by the $p$ first elements of $B$.
+
+## ICS for distributional data {#sec-icsdens}
+
+A first option to adapt ICS to density data would be to consider it as
+constrained functional data and directly follow the approach of @sec-icsfun.
+However, distributional data does not reduce to density data [such as
+absorbance spectra studied in @ferraty_functional_2002], as it can also
+be histogram data or sample data (such as the dataset of temperature
+samples analysed in @sec-appliout). Moreover, the framework of Bayes Hilbert
+spaces, described by [@van_den_boogaart_bayes_2014] and recalled in the
+Appendix, is specifically adapted to the study of distributional data.
+Taking into account the infinite-dimensional nature of distributional
+data, we follow a similar framework as the one of Section
+@sec-icsfun,
+restricting our attention to finite-dimensional subspaces $E$ of the
+Bayes space $B^2(a,b)$ with the Lebesgue measure as reference.
+
+### Choosing an approximating Euclidean space
+
+Following smoothing splines methods, adapted to Bayes spaces by
+@machalova_preprocessing_2016 and recalled in the Appendix, we choose to
+work in the space $E = \mathcal C^{\Delta \gamma}_d (a,b)$ of
+compositional splines on $(a,b)$ of order $d+1$ with knots
+$\Delta \gamma = (\gamma_1, \dots, \gamma_k)$. Note that the centred
+log-ratio transform $\operatorname{clr}$ is an isometry between $E$ and
+the space $F = \mathcal Z^{\Delta \gamma}_d (a,b)$ of zero-integral
+splines on $(a,b)$ of order $d+1$ (degree less than or equal to $d$) and with knots
+$\Delta \gamma = (\gamma_1, \dots, \gamma_k)$. They both have dimension
+$p = k + d$.
+
+### Preprocessing the observations into the approximating space {#sec-preproc}
+
+We consider the special cases of histogram data and of sample data. In
+the former, we follow [@machalova_compositional_2021] to smooth each
+histogram into a compositional spline in $E$. In the latter, we assume
+that a random density is observed through a finite random sample
+$(X_1, \dots, X_N)$ drawn from it. The preprocessing step consists in
+estimating the density from the observed sample. To perform the
+estimation, we need a nonparametric estimation procedure that yields a
+compositional spline belonging to $E$. That is why we opt for maximum
+penalised likelihood (MPL) density estimation, introduced by
+@silverman_estimation_1982. The principle of MPL is to maximise a
+penalised version of the log-likelihood over an infinite-dimensional
+space of densities without parametric assumptions. The penalty is the
+product of a smoothing parameter $\lambda$ by the integral over the
+interval of interest of the square of the $m$-th derivative of the log
+density. Therefore, the objective functional is a functional of the log
+density. Due to the infinite dimension of the ambient space, the
+likelihood term alone is unbounded above, hence the penalty term is
+necessary. In our case of densities on an interval $(a,b)$, we select
+the value $m=3$ so that [according to @silverman_estimation_1982 Theorem
+2.1] when the smoothing parameter tends to infinity, the estimated
+density converges to the parametric maximum likelihood estimate in the
+exponential family of densities whose logarithm is a polynomial of
+degree less than or equal to 2. This family comprises the uniform
+density, exponential and Gaussian densities truncated to $(a,b)$. In
+order to use MPL in $B^2(a,b)$, we need to add extra smoothness
+conditions and therefore we restrict attention to the densities of
+$B^2(a,b)$ whose log belongs to the Sobolev space of order $m$ on
+$(a,b)$, thus ensuring the existence of the penalty term. Note that
+compositional splines verify these conditions. With Theorem 4.1 in
+[@silverman_estimation_1982], the optimisation problem has at least a
+solution. Since the estimate $f$ of the density of $(X_1, \dots, X_N)$
+needs to belong to the chosen finite-dimensional subspace
+$E = \mathcal C^{\Delta \gamma}_d (a,b)$, we restrict MPL to $E$, using
+the R function `fda::density.fd`, designed by @ramsay_fda_2024. This
+function returns the coordinates of $\log (f)$ in the B-spline basis
+with knots $\Delta \gamma$ and order $d+1$, that we project onto
+$\mathcal Z^{\Delta \gamma}_d (a,b)$ and to which we apply
+$\operatorname{clr}^{-1}$ so that we obtain an element of
+$\mathcal C^{\Delta \gamma}_d (a,b)$.
+
+### Solving ICS in the approximating space
+
+We have now obtained an $E$-valued random compositional spline $f$. In
+order to work with two weighted covariance operators
+$\operatorname{Cov}_{w_1}$ and $\operatorname{Cov}_{w_2}$, where
+$w_1, w_2: \mathbb R^+ \rightarrow \mathbb R$ are two measurable
+functions, we assume that
+$f \in \mathcal E_{w_1} \cap \mathcal E_{w_2}$, using the notations of
+@def-covw.
+Now, we refer to @sec-icscoord to reduce the problem
+$\operatorname{ICS} (f, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+to a multivariate ICS problem on the coordinates of $f$ in the CB-spline
+basis of $\mathcal C^{\Delta \gamma}_d (a,b)$ [defined in
+@machalova_compositional_2021], transformed by the Gram matrix of said
+CB-spline basis. Note that @cor-isometry-covw applied to the centred log-ratio isometry
+between $\mathcal C^{\Delta \gamma}_d (a,b)$ and
+$\mathcal Z^{\Delta \gamma}_d (a,b)$ gives the equivalence between:
+
+1.  $(H, \Lambda)$ solves
+    $\operatorname{ICS} (f, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+    in the space $E = \mathcal C^{\Delta \gamma}_d (a,b)$
+
+2.  $(\operatorname{clr} (H), \Lambda)$ solves
+    $\operatorname{ICS} (\operatorname{clr} (f), \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+    in the space $F = \mathcal Z^{\Delta \gamma}_d (a,b)$.
+
+Then, it is completely equivalent, and useful for implementation, to
+work with the coordinates of $\operatorname{clr} (f)$ in the ZB-spline
+basis of $\mathcal Z^{\Delta \gamma}_d (a,b)$.
+
+# Outlier detection for complex data using ICS {#sec-icscomplexout}
+
+## Implementation of ICS on complex data for outlier detection {#sec-icsout}
+
+We propose using ICS to detect outliers in complex data, specifically in
+scenarios with a small proportion of outliers (typically 1 to 2%). For
+this, we follow the three-step procedure defined by
+@archimbaud_ics_2018, modifying the first step based on the
+implementation of coordinate-free ICS in @sec-icscoord.
+
+### Computing the invariant coordinates
+
+For the scatter operators, we follow the recommendation of
+@archimbaud_ics_2018 who compare several pairs of more or less robust
+scatter estimators in the context of a small proportion of outliers, and
+conclude that $(\operatorname{Cov}, \operatorname{Cov}_4)$ is the best
+choice. Thus, we use the empirical scatter pair
+$(\operatorname{Cov}, \operatorname{Cov}_4)$ (see @exm-cov and @exm-cov4),
+and compute the eigenvalues $\lambda_1 \geq \ldots \geq \lambda_p$, and the
+invariant coordinates $z_{ji}, 1 \leq j \leq p$, for each observation
+$X_i, 1 \leq i \leq n$. As outlined in @sec-icscoord, for
+a given sample of random complex objects $D_n= \{X_1, \dots, X_n\}$ in
+a Euclidean space $E$, solving the empirical version of ICS is
+equivalent to solving an ICS problem in a multivariate framework [see
+@tyler_invariant_2009] with the coordinates of the objects in a basis
+$B$ of $E$. In order to choose a basis, we follow the specific
+recommendations for each type of data from @sec-icscoda and
+@sec-icsdens.
+
+### Selecting the invariant components
+
+The second step of the outlier detection procedure based on ICS is the
+selection of the $\kappa<p$ relevant invariant components and the
+computation of the ICS distances. For each of the $n$ observations, the
+ICS distance is equal to the Euclidean norm of the reconstructed data
+using the $\kappa$ selected invariant components. In the case of a small
+proportion of outliers and for the scatter pair
+$(\operatorname{Cov}, \operatorname{Cov}_4)$, the invariant components
+of interest are associated with the largest eigenvalues and the squared
+ICS distances are equal to $\displaystyle \sum_{j=1}^\kappa z_{ji}^2$.
+As noted by @archimbaud_ics_2018, there exist several methods for the
+selection of the number of invariant components. One approach is to
+examine the scree plot, as in PCA. This method, recommended by
+@archimbaud_ics_2018, is not automatic. Alternative automatic selection
+methods apply univariate normality tests to each component, starting
+with the first one, and using some Bonferroni correction [for further
+details see page 13 of @archimbaud_ics_2018]. In the present paper, we
+use the scree plot approach when there is no need of an automatic
+method, and we use the D'Agostino normality test for automatic
+selection. The level for the first test (before Bonferroni correction)
+is 5%. Dimension reduction involves retaining only the first $\kappa$
+components of ICS instead of the original $p$ variables. Note that when
+all the invariant components are retained, the ICS distance is equal to
+the Mahalanobis distance.
+
+### Choosing a cut-off
+
+The computation of ICS distances allows to rank the observations in
+decreasing order, with those having the largest distances potentially
+being outliers. However, in order to identify the outlying densities, we
+need to define a cut-off, and this constitutes the last step of the
+procedure. Following @archimbaud_ics_2018, we derive cut-offs based on
+Monte Carlo simulations from the standard Gaussian distribution. For a
+given sample size and number of variables, we generate 10,000 standard
+Gaussian samples and compute the empirical quantile of order 97.5% of
+the ICS-distances using the three steps previously described. An
+observation with an ICS distance larger than this quantile is flagged as
+an outlier.\
+The procedure described above has been illustrated in several examples
+[see @archimbaud_ics_2018], and is implemented in the R package
+`ICSOutlier` [see @nordhausen_icsoutlier_2023]. However, in the context
+of densities, the impact of preprocessing parameters (see @sec-icsdens) on
+the ICSOutlier procedure emerges as a crucial question that needs to be
+examined.
+
+## Influence of the preprocessing parameters for the density data application {#sec-toyex}
+
+As a toy example, consider the densities of the maximum daily
+temperatures for the 26 provinces of the two regions Red River Delta and
+Northern Midlands and Mountains in Northern Vietnam between 2013 and
+2016. We augment this data set made of 104 densities by adding the
+provinces AN GIANG and BAC LIEU from Southern Vietnam in the same time
+period. The total number of observations is thus 112. Details on the
+original data and their source are provided in @sec-datades.
+
+```{r fig-vnt_north_south_map}
+#| fig-cap: Map of Vietnam showing the 63 provinces, with the three regions under
+#|   study colour-coded. The 28 provinces included in the toy example are labelled.
+
+library(dda)
+library(tidyverse)
+library(sf)
+
+data(vietnam_provinces)
+data(vietnam_regions)
+
+vietnam_provinces |>
+  mutate(
+    province = if_else(region %in% c("NMM", "RRD") | province %in% c("ANGIANG", "BACLIEU"), province, NA),
+    region = if_else(region %in% c("NMM", "RRD", "MDR"), region, NA)
+  ) |>
+  left_join(vietnam_regions, by = c("region" = "code")) |>
+  select(!region) |>
+  rename(region = name) |>
+  ggplot(aes(fill = region, label = province)) +
+  geom_sf() +
+  geom_sf_label(fill = "white", size = 3) +
+  scale_fill_discrete(na.translate = FALSE) +
+  scale_x_continuous(breaks = seq(from = -180, to = 180, by = 2)) +
+  labs(x = "longitude", y = "latitude")
+```
+
+```{r fig-vnt_north_south_densclr}
+#| fig-cap: Plots of the 112 densities (left panel) and clr densities
+#|   (right panel), colour-coded by region for the toy example.
+#| fig-subcap: ""
+#| fig-width: 7.5
+#| fig-height: 5
+#| layout-ncol: 2
+
+# Filter the data set
+data(vietnam_temperature)
+selected_years <- 2013:2016
+
+vnt <- vietnam_temperature |>
+  filter(year %in% selected_years) |>
+  filter(region %in% c("NMM", "RRD") | province %in% c("ANGIANG", "BACLIEU")) |>
+  left_join(vietnam_regions, by = c("region" = "code")) |>
+  select(!region) |>
+  rename(region = name) |>
+  arrange(region, province)
+
+vnts <- vnt |> mutate(t_max = as_dd(t_max, lambda = 1, nbasis = 12))
+
+vnts |>
+  plot_funs(t_max, color = region) +
+  theme_legend_inside +
+  labs(x = "temperature (deg. Celsius)", y = "density")
+
+vnts |>
+  mutate(t_max = as.fd(center(t_max))) |>
+  plot_funs(t_max, color = region) +
+  theme(legend.position = "none") +
+  labs(x = "temperature (deg. Celsius)", y = "centred clr(density)")
+```
+
+@fig-vnt_north_south_map displays a map of Vietnam with the
+contours of all provinces and coloured according to their administrative
+region, allowing the reader to locate the 26 provinces in the North and
+the two in the South. As shown on the left panel of
+@fig-vnt_north_south_densclr, the eight densities of the two
+provinces from the South for the four years exhibit a very different
+shape (in red) compared to the northern provinces (in blue and green),
+with much more concentrated maximum temperatures. These two provinces
+should be detected as outliers when applying the ICSOutlier methodology.
+However, the results may vary depending on the choice of preprocessing
+parameters (see @sec-preproc). Our goal is to analyse how the detected
+outliers vary depending on the preprocessing when using the maximum
+penalised likelihood method with splines of degree less than or equal to
+$d=4$. Specifically, we study the influence on the results of ICSOutlier
+of the smoothing parameter $\lambda$, the number of inside knots $k$,
+and the location of the knots defining the spline basis.
+
+The number $\kappa$ of selected invariant components is fixed at four in
+all experiments to facilitate interpretation. This value has been chosen
+after viewing the scree plots of the ICS eigenvalues following the
+recommendations in @sec-icsout. For each of the experimental scenarios
+detailed below, we compute the squared ICS distances of the 112
+observations as defined in @sec-icsout,
+using $\kappa=4$. Observations are classified as outliers when their
+squared ICS distance exceeds the threshold defined in @sec-icsout,
+using a level of $2.5\%$. For each experiment, we plot on @fig-vnt_north_south_grid the
+indices of the observations from 1 to 112 on the $y$-axis, marking
+outlying observations with dark squares. The eight densities from
+Southern Vietnam are in red and correspond to indices 1 to 8. We
+consider the following scenarios:
+
+-   the knots are either located at the quantiles of the temperature
+    values (top panel on @fig-vnt_north_south_grid) or equally spaced
+    (bottom panel on @fig-vnt_north_south_grid),
+-   from the left to the right of @fig-vnt_north_south_grid, the
+    number of knots varies from 0 to 14 by increments of 2, and then
+    takes the values 25 and 35 (overall 10 different values). Note that
+    when increasing the number of knots beyond 35, the code returns more
+    and more errors due to multicollinearity issues and the results are
+    not reported.
+-   the base-10 logarithm of the parameter $\lambda$ varies from -8 to 8
+    with an increment of 1 on the $x$-axis of each plot.
+
+Altogether we have $2\times 10\times 17=340$ scenarios.
+@fig-vnt_north_south_grid_summary is a
+bar plot showing the observations indices on the $x$-axis and the
+frequency of outlier detection across scenarios on the $y$-axis
+color-coded by region. The eight densities from the two southern
+provinces (AN GIANG and BAC LIEU) across the four years are most
+frequently detected as outliers, along with the province of LAI CHAU
+(indices 33 to 36), which is located in a mountainous region in
+northwest of Vietnam. On the original data, we can see that the LAI CHAU
+province corresponds to densities with low values for high maximum
+temperatures (above 35°C) coupled with relatively high density values
+for maximum temperatures below 35°C. A few other observations are
+detected several times as outliers, but less frequently: indices 53
+(TUYEN QUANG in 2013), 96 (QUANG NINH in 2016), and 107 (THANH HOA in
+2015).
+
+Looking at @fig-vnt_north_south_grid, we examine the impact of the preprocessing
+parameters on the detection of outlying observations. First, note that
+the ICS algorithm returns an error when the $\lambda$ parameter is large
+(shown as white bands in some plots). This is due to a multicollinearity
+problem. Even though the QR version of the ICS algorithm is quite
+stable, it may still encounter problems when multicollinearity is
+severe. Indeed, when $\lambda$ is large, the estimated densities
+converge to densities whose logarithm is a polynomial of degree less
+than or equal to 2 (see details in @sec-preproc), and belongs to a 3-dimensional affine
+subspace of the Bayes space, potentially with a dimension smaller than
+that of the approximating spline space. If we compare the top and the
+bottom plots, we do not observe large differences in the outlying
+pattern, except for a few observations rarely detected as outliers.
+Thus, the knot location has a rather small impact on the ICS results for
+this data set. Regarding the impact of the $\lambda$ parameter, the
+outlier pattern remains relatively stable when the number of knots is
+small (less than or equal to 6), especially when looking at the
+densities from the south of Vietnam in red. For a large number of knots,
+the observations detected as outliers vary with $\lambda$. The number of
+knots has more impact than their location or the $\lambda$ parameter.
+When the number of knots is smaller than or equal to 6 (corresponding to
+$p=10$ variables), the plots are very similar. However, as $p$
+increases, some observations from Southern Vietnam are not detected for
+all $\lambda$ values, while another density (QUANG NINH in 2016) is
+detected for large $\lambda$ values with equally spaced knots, and to a
+lesser extent for knots at temperature quantiles. In
+[@archimbaud_ics_2022], ICS is applied to multivariate functional data
+with B-splines preprocessing. Based on their empirical experience, the
+authors recommend using a dimension $p$ (in their case, the number of
+functional components times the number of B-splines coefficients) no
+larger than the number of observations divided by 10. Typically in
+multivariate analysis, the rule of thumb is that the dimension should
+not exceed the number of observations divided by 5. For functional or
+distributional data, it appears that even more observations per variable
+are needed. The reason for this is not entirely clear, but in the case
+of ICS, we can suspect that the presence of multicollinearity, even
+approximate, degrades the results. By increasing the number of knots, we
+precisely increase the multicollinearity problem, especially for large
+values of $\lambda$.
+
+```{r fig-vnt_north_south_grid}
+#| fig-cap: Outlier detection by ICS across smoothing parameters for the Vietnam
+#|   toy example. *Top:* knots at quantiles; *Bottom:* equally spaced knots.
+#|   *$y$-axis:* observation indices; *$x$-axis:* $\lambda$ parameter.
+#|   Columns correspond to knot numbers (0-35). Outliers are dark and
+#|   colour-coded by region.
+
+library(ICSFun)
+
+smooth_ICS <- function(vnt, knots_pos, nknots, lambda, index) {
+  vnts <- vnt |>
+    mutate(t_max = as_dd(t_max,
+      lambda = lambda, nbasis = 5 + nknots,
+      knots_pos = knots_pos
+    ))
+  knots_pos_str <- ifelse(knots_pos == "quantiles",
+    "Knots at quantiles", "Equally spaced knots"
+  )
+  index_str <- ifelse(is.na(index), "Auto selection of components",
+    paste("# of components:", index)
+  )
+
+  print(paste(
+    "# of knots:", nknots, "|",
+    "log10(lambda):", log10(lambda), "|",
+    knots_pos_str, "|",
+    index_str
+  ))
+
+  if (is.na(index)) {
+    list(
+      dd = vnts$t_max,
+      ics = tryCatch(ICS(as.fd(vnts$t_max)), error = function(e) e),
+      ics_out = tryCatch(ICS_outlier(as.fd(vnts$t_max),
+        n_cores = parallel::detectCores() - 1
+      ), error = function(e) e)
+    )
+  } else {
+    list(
+      dd = vnts$t_max,
+      ics = tryCatch(ICS(as.fd(vnts$t_max)), error = function(e) e),
+      ics_out = tryCatch(ICS_outlier(as.fd(vnts$t_max),
+        n_cores = parallel::detectCores() - 1, index = seq_len(index)
+      ), error = function(e) e)
+    )
+  }
+}
+
+knots_pos_seq <- c("quantiles", "equally spaced")
+nknots_seq <- c(5:19, seq(20, 40, 10)) - 5
+lambda_seq <- 10^(-8:8)
+index_seq <- 4
+
+param_grid <- expand.grid(
+  knots_pos = knots_pos_seq,
+  nknots = nknots_seq,
+  lambda = lambda_seq,
+  index = index_seq
+) |>
+  arrange(nknots, knots_pos, lambda)
+
+if (!file.exists("data/vnt_north_south_outliers.RData") && !file.exists("data/vnt_north_south.RData")) {
+  system.time(
+    ics_grid <- param_grid |>
+      mutate(id = seq_len(n())) |>
+      rowwise() |>
+      mutate(res = list(smooth_ICS(vnt, knots_pos, nknots, lambda, index)))
+  )
+  save(ics_grid, file = "data/vnt_north_south.RData")
+}
+
+if (!file.exists("data/vnt_north_south_outliers.RData")) {
+  load("data/vnt_north_south.RData")
+
+  ics_grid_out <- ics_grid |>
+    rowwise() |>
+    filter(!(any(class(res$ics_out) == "error"))) |>
+    mutate(res = list(data.frame(
+      obs_id = seq_len(length((res$ics_out$outliers))),
+      outlying = res$ics_out$outliers == 1,
+      distance = res$ics_out$ics_distances
+    ))) |>
+    unnest(res)
+
+  save(ics_grid_out, file = "data/vnt_north_south_outliers.RData")
+}
+
+load("data/vnt_north_south_outliers.RData")
+
+ics_grid_out |>
+  left_join(vnt |> mutate(obs_id = row_number()), by = c("obs_id")) |>
+  filter(nknots %% 2 == 0 | nknots > 20) |>
+  mutate(region = str_wrap(region, 25)) |>
+  ggplot(aes(log10(lambda), obs_id, fill = region, alpha = outlying)) +
+  geom_tile() +
+  facet_grid(cols = vars(nknots), rows = vars(knots_pos)) +
+  labs(y = "observation index")
+```
+
+```{r fig-vnt_north_south_grid_summary}
+#| fig-cap: Frequency of outlier detection by ICS across 340 scenarios with
+#|   varying smoothing parameters, for each observation in the Vietnam toy
+#|   example.
+
+ics_grid_summary <- ics_grid_out |>
+  mutate(outlying = ifelse(outlying, 1, 0)) |>
+  group_by(obs_id) |>
+  summarise(n_outlying = sum(outlying), mean_distance = mean(distance)) |>
+  left_join(vnt |> mutate(obs_id = row_number()), by = c("obs_id")) |>
+  select(obs_id, region, province, year, n_outlying, mean_distance)
+
+ics_grid_summary |>
+  ggplot(aes(obs_id, n_outlying, fill = region)) +
+  geom_bar(stat = "identity") +
+  theme_legend_inside_right +
+  labs(x = "observation index", y = "outlier detection frequency")
+```
+
+From this experimentation, we recommend using knots located at the
+quantiles of the measured variable, and a number of knots such that the
+number of observations is around 10 times the dimension $p$ (here: the
+dimension of the B-spline basis). The base-10 logarithm of parameter
+$\lambda$ can be chosen between -2 and 2 to avoid extreme cases and
+multicollinearity problems. Moreover, the idea of launching ICS multiple
+times with different preprocessing parameter values to confirm an
+observation's atypical nature by its repeated detection is a strategy we
+retain for real applications, as detailed in @sec-app_smooth.
+
+## Comparison with other methods
+
+We now compare ICS for functional data (presented in @sec-icsfun) to
+eight outlier detection methods already existing in the literature, such
+as median-based approaches [@murph_visualisation_2024], the modified
+band depth method [@sun_functional_2011] and MUOD indices
+[@ojo_detecting_2022].
+
+```{r fig-comparison_schemes, message = FALSE}
+#| fig-cap: Generation schemes for density data with outliers
+#| fig-height: 5
+
+library(tf)
+
+schemes <- c("GP_clr", "Gumbel", "GP_margin")
+
+simulation_gp_clr <- function(n, p) {
+  sim <- fdaoutlier::simulation_model4(n, p, mu = 15, outlier_rate = 0.02)
+  y <- exp(tfd(sim$data, arg = seq(0, 1, length.out = p)))
+
+  list(
+    data = as.matrix(y / tf_integrate(y)),
+    true_outliers = replace(integer(n), sim$true_outliers, 1)
+  )
+}
+
+dgumbel <- function(x, mu = 0, beta = 1) {
+  z <- (x - mu) / beta
+  exp(-z - exp(-z)) / beta
+}
+
+simulation_gumbel <- function(n, p, outlier_rate = 0.02, deterministic = TRUE) {
+  tt <- seq(0, 1, length.out = p)
+  a <- matrix(rnorm(n, sd = 0.01), nrow = p, ncol = n, byrow = TRUE)
+  b <- matrix(rnorm(n, sd = 0.01), nrow = p, ncol = n, byrow = TRUE)
+  y <- dgumbel(tt, mu = 0.25 + a, beta = 0.05 + b)
+  dtt <- fdaoutlier:::determine(deterministic, n, outlier_rate)
+  n_outliers <- dtt$n_outliers
+  true_outliers <- dtt$true_outliers
+  if (n_outliers > 0) {
+    a <- matrix(rnorm(n_outliers, sd = 0.01),
+      nrow = p, ncol = n_outliers, byrow = TRUE
+    )
+    b <- matrix(rnorm(n_outliers, sd = 0.01),
+      nrow = p, ncol = n_outliers, byrow = TRUE
+    )
+    y[, true_outliers] <- dgumbel(tt, mu = 0.32 + a, beta = 0.05 + b)
+  }
+  rownames(y) <- tt
+  return(list(
+    data = t(y),
+    true_outliers = replace(integer(n), true_outliers, 1)
+  ))
+}
+
+simulation_gp_margin <- function(n, p) {
+  sim <- fdaoutlier::simulation_model5(n, p, outlier_rate = 0.02)
+  y <- tibble(f = split(sim$data, row(sim$data))) |>
+    mutate(f = as_dd(f, lambda = 1, nbasis = 10))
+  tt <- seq(min(sim$data), max(sim$data), length.out = p)
+  densities_matrix <- t(eval(c(y$f), tt))
+  colnames(densities_matrix) <- tt
+  list(
+    data = densities_matrix,
+    true_outliers = replace(integer(n), sim$true_outliers, 1)
+  )
+}
+
+generate_data <- function(scheme, n = 200, p = 100) {
+  print(paste("Generating", scheme, "data"))
+  switch(scheme,
+    "GP_clr" = simulation_gp_clr(n, p),
+    "Gumbel" = simulation_gumbel(n, p),
+    "GP_margin" = simulation_gp_margin(n, p)
+  )
+}
+```
+
+Our simulation uses three density-generating processes with $2\%$ of
+outliers. The scheme named `GP_clr`, based on model 4 of the
+`fdaoutlier` package [@ojo_detecting_2022 section 4.1], first simulates
+a discretised random function in $L^2(0,1)$ from a mixture of two
+Gaussian processes with different means, and applies the inverse
+$\operatorname{clr}$ transformation to obtain a random density in the
+Bayes space $B^2 (0,1)$. The scheme named `GP_margin` first simulates a
+discretised random function in $L^2 (0,1)$ using model 5 of the
+`fdaoutlier` package, which consists in a mixture of two Gaussian
+processes with different covariance operators. Then, the random density
+is obtained as a kind of marginal distribution of the discrete values of
+the random function, where the $x$-axis is discarded: theses values are
+considered as a random sample and smoothed using MPL (see @sec-icsdens with
+parameters $\lambda = 1$, $10$ basis functions and knots (as well as
+interval bounds) at quantiles of the full sample. This scheme is similar
+to the data generating process of the Vietnamese climate dataset.
+Finally, the `Gumbel` scheme first draws parameters from a mixture of
+two Gaussian distributions in $\mathbb R^2$ and computes the Gumbel
+density functions corresponding to these parameters (it generates shift
+outliers as described in [@murph_visualisation_2024]). Note that the
+output of all the schemes is a set of discretised densities on a regular
+grid of size $p=100$ that covers an interval $(a,b)$ (which is $(0,1)$
+for `GP_clr` and `Gumbel` and the range of the full sample for
+`GP_margin`). In each sample, there are $n=200$ densities.
+
+For the outlier detection methods, we denote them as
+`<Approach>_<Metric>` so that for instance, `ICS_B2` refers to ICS for
+density data in the Bayes space $B^2 (a,b)$. The steps of the `ICS_B2`
+method are as follows. After applying the discrete clr transformation to
+each discretised density function, we approximate the underlying clr
+transformed smooth density by a smoothing spline in $L^2_0 (a,b)$ using
+the preprocessing described in [@machalova_preprocessing_2016]. During
+this process, densities should not take values too close to $0$ to avoid
+diverging clr, so we replace by $10^{-8}$ all density values below this
+threshold. The parameters of the compositional spline spaces are chosen
+by the function `fda.usc::fdata2fd`. Then, we solve ICS in the chosen
+compositional spline space, automatically selecting the components with
+tests as before. The `ICS_L2` method first smooths each discretised
+density using splines in $L^2 (a,b)$ treating the densities as ordinary
+functional parameters. In the second step, we apply ICS in the chosen
+spline space, selecting the components automatically through D'Agostino
+normality tests. The MBD [@lopez-pintado_concept_2009] and MUOD
+[@azcorra_unsupervised_2018] approaches are implemented using the
+package `fdaoutlier` [@ojo_fdaoutlier_2023], either directly
+(`<Approach>_L2`) or after transforming the densities into log quantile
+densities (`<Approach>_LQD`) or into quantile functions
+(`<Approach>_QF`). The median-based methods such as `Median_LQD` and
+`Median_Wasserstein` are described in [@murph_visualisation_2024] and
+implemented in the `DeBoinR` package from [@murph_deboinr_2023] using
+the recommended default parameters.
+
+For each combination between a generating scheme and a method, we
+average the TPR (True Positive Rate, or sensitivity) and the FPR (False
+Positive Rate, one minus specificity) over $N=200$ repetitions, for each
+value of PP (the number of predicted positive) which scales from $0$ to
+$n$. We also compute point-wise confidence bounds using the standard
+deviation of the TPR over the $N$ repetitions and the standard Gaussian
+quantile of order 97.5%. The ROC curves together with their confidence
+bands are represented in @fig-comparison_methods, separately for the three
+density-generating processes. @tbl-comparison_auc summarises the performance of the methods across
+the schemes, by means of the average area under the curve (AUC).
+
+We can see that both ICS methods give quite similar results except for
+the `GP_clr` generating process where `ICS_B2` outperforms `ICS_L2`.
+Together with `MUOD_L2` and `MUOD_QF`, these methods are the best in
+terms of average AUC, although ICS-based methods perform more
+consistently across the different generating schemes. The `Median_LQD`
+and `MBD_LQD` methods are worse than the others for all generating
+schemes. Overall, we can recommend ICS versus the other outlier
+detection methods in this situation where the proportion of outliers is
+small.
+
+```{r fig-comparison_methods}
+#| fig-cap: ROC curves of 10 different outlier detection methods for
+#|   density data with 3 generating schemes.
+#| fig-height: 7
+#| message: false
+#| cache.lazy: false
+library(ICSFun)
+
+methods <- c(
+  "ICS_B2",
+  "ICS_L2",
+  "Median_LQD",
+  "Median_Wasserstein",
+  "MBD_L2",
+  "MBD_LQD",
+  "MBD_QF",
+  "MUOD_L2",
+  "MUOD_LQD",
+  "MUOD_QF"
+)
+N <- 200 # Number of repetitions per combination
+
+method_ics_b2 <- function(data) {
+  u <- fda.usc::fdata(log(pmax(data, 1e-8)), argvals = as.numeric(colnames(data))) |>
+    fda.usc::fdata2fd(nbasis = 10)
+  for (i in integer(3)) {
+    u$coefs <- sweep(u$coefs, 2, fda::inprod(u) / diff(u$basis$rangeval))
+  }
+  if (any(is.nan(u$coefs))) stop("ICS preprocessing has failed for at least one density")
+  ICS_outlier(u, n_cores = 14)$ics_distances
+}
+
+method_ics_l2 <- function(data) {
+  f <- fda.usc::fdata(data, argvals = as.numeric(colnames(data))) |>
+    fda.usc::fdata2fd(nbasis = 10)
+  ICS_outlier(f, n_cores = 14)$ics_distances
+}
+
+method_deboinr <- function(data, distance) {
+  density_order <- deboinr(
+    x_grid = seq(0, 1, length.out = ncol(data)),
+    densities_matrix = data,
+    distance = distance,
+    num_cores = 14
+  )$density_order
+  order(density_order)
+}
+
+pdf_to_quant <- function(pdf, x_grid) {
+  interp_fn <- approxfun(x_grid, pdf)
+  cdf <- DeBoinR:::pdf_to_cdf(pdf, x_grid, norm = TRUE)
+  quant <- DeBoinR:::cdf_to_quant(cdf, x_grid)
+  return(quant)
+}
+
+pdf_transform <- function(data, transform = c("id", "QF", "LQD")) {
+  switch(transform,
+    "id" = data,
+    "QF" = t(apply(
+      data, 1,
+      function(f) pdf_to_quant(f, seq(0, 1, length.out = ncol(data)))
+    )),
+    "LQD" = t(apply(
+      data, 1,
+      function(f) {
+        DeBoinR:::pdf_to_lqd(
+          DeBoinR:::alpha_mix(f, 0.1),
+          seq(0, 1, length.out = ncol(data))
+        )
+      }
+    ))
+  )
+}
+
+method_muod <- function(data) {
+  res <- muod(data)$indices
+  res <- apply(res, 2, function(x) (x - quantile(x, 0.75)) / IQR(x))
+  apply(res, 1, max)
+}
+
+outlier_score <- function(method, data) {
+  print(paste("Computing outlier scores with", method))
+  tryCatch(switch(method,
+    "ICS_B2" = method_ics_b2(data),
+    "ICS_L2" = method_ics_l2(data),
+    "Median_LQD" = method_deboinr(data, distance = "nLQD"),
+    "Median_Wasserstein" = method_deboinr(data, distance = "wasserstein"),
+    "MBD_L2" = -modified_band_depth(data),
+    "MBD_LQD" = -modified_band_depth(pdf_transform(data, "LQD")),
+    "MBD_QF" = -modified_band_depth(pdf_transform(data, "QF")),
+    "MUOD_L2" = method_muod(data),
+    "MUOD_LQD" = method_muod(pdf_transform(data, "LQD")),
+    "MUOD_QF" = method_muod(pdf_transform(data, "QF"))
+  ), error = function(e) NA)
+}
+
+compute_roc <- function(scores, true_outliers) {
+  thresholds <- c(scores, max(scores) + 1)
+  tibble(threshold = thresholds) |>
+    mutate(
+      TP = map_int(threshold, ~ sum(scores >= .x & true_outliers)),
+      FP = map_int(threshold, ~ sum(scores >= .x & !true_outliers)),
+      FN = map_int(threshold, ~ sum(scores < .x & true_outliers)),
+      TN = map_int(threshold, ~ sum(scores < .x & !true_outliers)),
+      PP = map_int(threshold, ~ sum(scores >= .x)),
+      TPR = TP / (TP + FN),
+      FPR = FP / (FP + TN),
+    ) |>
+    select(TPR, FPR, PP)
+}
+
+compute_auc_2 <- function(scores, true_outliers) {
+  thresholds <- scores[which(true_outliers)]
+  P <- sum(true_outliers)
+  N <- sum(!true_outliers)
+  tibble(threshold = thresholds) |>
+    mutate(
+      is_ordered = map_int(threshold, ~ sum(scores < .x & !true_outliers)) / (P * N),
+    ) |>
+    pull(is_ordered) |>
+    sum()
+}
+
+if (!(file.exists("data/ICS_comparison.RData")) & !(file.exists("data/ICS_comparison_data.RData"))) {
+  comparison_data <- crossing(Simulation = 1:N, Scheme = schemes) |>
+    mutate(sim = map(Scheme, generate_data)) |>
+    crossing(Method = methods)
+  save(comparison_data, file = "data/ICS_comparison_data.RData")
+}
+
+if (!(file.exists("data/ICS_comparison.RData"))) {
+  load("data/ICS_comparison_data.RData")
+  comparison <- comparison_data |>
+    filter(Method %in% methods & Scheme %in% schemes) |>
+    unnest_wider(sim) |>
+    mutate(
+      scores = map2(Method, data, outlier_score),
+      roc = map2(scores, true_outliers, compute_roc)
+    ) |>
+    unnest(roc) |>
+    select(!data)
+  save(comparison, file = "data/ICS_comparison.RData")
+}
+
+load("data/ICS_comparison.RData")
+
+# Aggregate results (averaging over simulations)
+comparison_avg <- comparison |>
+  separate_wider_delim(Method, "_", names = c("Approach", "Metric")) |>
+  group_by(Scheme, Metric, Approach, PP) |>
+  summarize(
+    n = n(),
+    TPR_avg = mean(TPR),
+    TPR_conf = qnorm(0.975) * sd(TPR) / sqrt(n()),
+    FPR_avg = mean(FPR),
+    FPR_conf = qnorm(0.975) * sd(FPR) / sqrt(n()),
+    .groups = "drop"
+  )
+
+ggplot(comparison_avg, aes(FPR_avg, TPR_avg, color = Scheme, group = Scheme)) +
+  geom_line() +
+  geom_ribbon(aes(
+    ymin = pmax(0, TPR_avg - TPR_conf),
+    ymax = pmin(1, TPR_avg + TPR_conf),
+    xmin = pmax(0, FPR_avg - FPR_conf),
+    xmax = pmin(1, FPR_avg + FPR_conf),
+    fill = Scheme
+  ), alpha = 0.1, linetype = "dotted") +
+  geom_function(fun = identity, linetype = "dotted") +
+  facet_wrap(vars(paste(Approach, Metric, sep = "_")), nrow = 2) +
+  coord_fixed() +
+  labs(
+    x = "False Positive Rate (FPR)",
+    y = "True Positive Rate (TPR)",
+  ) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r tbl-comparison_auc}
+#| tbl-cap: AUC for the 10 outlier detection methods, averaged across the 3
+#|   generating schemes.
+
+comparison_auc <- comparison_avg |>
+  group_by(Scheme, Approach, Metric) |>
+  summarise(AUC = integrate(approxfun(FPR_avg, TPR_avg), 0, 1)$value)
+
+comparison_auc |>
+  group_by(Approach, Metric) |>
+  summarise(`Average AUC` = mean(AUC)) |>
+  arrange(desc(`Average AUC`)) |>
+  mutate(across(where(is.numeric), ~ signif(.x, digits = 2)))
+```
+
+# An application to Vietnamese climate data {#sec-appliout}
+
+## Data description and preprocessing {#sec-datades}
+
+```{r fig-vnt_climate_regions_map}
+#| fig-cap: The three climate regions of Northern Vietnam.
+#| fig-width: 11.25
+#| fig-height: 7.5
+
+library(dda)
+library(sf)
+library(tidyverse)
+
+vietnam_provinces <- vietnam_provinces |>
+  arrange(region, province) |>
+  mutate(climate_region = case_when(
+    province %in% c("LAICHAU", "DIENBIEN", "SONLA") ~ "S1",
+    province %in% c(
+      "LAOCAI", "YENBAI", "HAGIANG", "CAOBANG", "TUYENQUANG",
+      "BACKAN", "THAINGUYEN", "LANGSON", "BACGIANG", "QUANGNINH"
+    ) ~ "S2",
+    region %in% c("NMM", "RRD") ~ "S3",
+    .default = NA
+  ))
+
+vietnam_provinces |>
+  filter(region %in% c("RRD", "NMM")) |>
+  ggplot(aes(fill = climate_region, label = province)) +
+  geom_sf() +
+  geom_sf_label(fill = "white") +
+  scale_fill_viridis_d() +
+  labs(x = "longitude", y = "latitude", fill = "climate region")
+```
+
+In this application, we study daily maximum temperatures for each of the
+$I=63$ Vietnamese provinces over a $T=30$-year period (1987-2016).
+Originally from the Climate Prediction Center (CPC) database, developed
+and maintained by the National Oceanic and Atmospheric Administration
+(NOAA), the data underwent a preliminary treatment presented in
+[@trinh_discrete_2023]. From the daily 365 or 366 values for each year,
+we derive the yearly maximum temperature distribution for each of the
+1,890 province-year units. We assume that the temperature samples are
+independent across years and spatially across provinces, which is a
+simplifying assumption. @fig-vnt_north_south_map depicts the six administrative
+regions of Vietnam, and the corresponding provinces. However, these
+regions cover areas with varied climates. To achieve more climatically
+homogeneous groupings, we use clusters of provinces based on climatic
+regions as defined by @stojanovic_trends_2020. @fig-vnt_climate_regions_map displays the three climatic regions
+covering Northern Vietnam. We focus on region S3, composed of 13
+provinces, by similarity with the North Plain (Red River Delta) (S3) in
+[@stojanovic_trends_2020].
+
+@fig-vnt_climate_regions_dens shows the maximum temperature densities for the 13 provinces of S3,
+plotted by year, using the preprocessing detailed in @sec-preproc with degree less than or equal to $d=4$,
+smoothing parameter $\lambda=10$ and $k=10$ knots located at quantiles
+of the pooled sample (across space and time). We observe more
+variability across time than across space which confirms that the
+spatial homogeneity objective is achieved.
+
+```{r fig-vnt_climate_regions_dens}
+#| fig-cap: Maximum temperature densities for the 13 provinces in the S3 climate
+#|   region of Northern Vietnam, 1987-2016, colour-coded by province.
+
+vntcr <- vietnam_temperature |>
+  filter(region %in% c("RRD", "NMM")) |>
+  dplyr::select(year, province, t_max) |>
+  left_join(vietnam_provinces, by = "province") |>
+  st_as_sf() |>
+  dplyr::select(year, climate_region, province, t_max) |>
+  filter(climate_region == "S3") |>
+  arrange(year, province)
+
+vnt <- vntcr |>
+  mutate(t_max = as_dd(t_max, lambda = 10, nbasis = 10))
+class(vnt$t_max) <- c("ddl", "fdl", "list")
+
+vnt |> plot_funs(t_max, color = province) +
+  facet_wrap(vars(year)) +
+  labs(x = "temperature (deg. Celsius)", y = "density")
+```
+
+## Outlier detection using ICS for the S3 climate region of Vietnam
+
+We follow the different steps described in @sec-icsout,
+and examine the results of ICS outlier detection using the scatter pair
+$(\operatorname{Cov}, \operatorname{Cov}_4)$ on the 390 (13 provinces
+$\times$ 30 years) densities from region S3, obtained after the
+preprocessing detailed above.
+
+```{r fig-vnt_climate_regions_screedist}
+#| fig-cap: Scree plot of the ICS eigenvalues (left panel), and the ICS
+#|   distances based on the first two components (right panel) for maximum
+#|   temperature densities for the 13 provinces in the S3 climate region of
+#|   Northern Vietnam, 1987-2016.
+#| fig-subcap: ""
+#| fig-width: 7.5
+#| fig-height: 5
+#| layout-ncol: 2
+library(ICSFun)
+
+icsout <- ICS_outlier(vnt$t_max, index = 1:2, n_cores = 14)
+
+icsout$result |> ggplot(aes(index, gen_kurtosis, group = 1)) +
+  geom_line(alpha = 0.5) +
+  geom_point(aes(color = index, alpha = selected), size = 3) +
+  theme_legend_inside_right +
+  labs(x = "", y = "ICS eigenvalues") +
+  guides(color = "none")
+
+vnt <- vnt |>
+  mutate(
+    index = seq_len(nrow(icsout$scores)),
+    outlying = as.factor(icsout$outliers),
+    distances = icsout$ics_distances
+  ) |>
+  cbind(icsout$scores)
+
+vnt |>
+  mutate(province = ifelse(outlying == 1, province, NA)) |>
+  ggplot(aes(year, distances, color = province, label = year)) +
+  geom_text() +
+  scale_color_discrete(limits = function(x) ifelse(is.na(x), "", x)) +
+  geom_hline(yintercept = icsout$ics_dist_cutoff) +
+  labs(color = "outlying\nprovinces")
+```
+
+```{r fig-vnt_climate_regions_eigdensscat}
+#| fig-cap: Scatter plot of the first two invariant components (left
+#|   panel) labelled by year and coloured by province, and the first two ICS
+#|   dual eigendensities (right panel) of the maximum temperature densities
+#|   for the 13 provinces in the S3 climate region of Northern Vietnam,
+#|   1987-2016.
+#| fig-subcap: ""
+#| fig-width: 7.5
+#| fig-height: 5
+#| layout-ncol: 2
+
+vnt |>
+  mutate(province = ifelse(outlying == 1, province, NA)) |>
+  ggplot(aes(IC.1, IC.2)) +
+  scale_color_discrete(limits = function(x) ifelse(is.na(x), "", x)) +
+  geom_text(aes(color = province, label = year)) +
+  labs(color = "outlying\nprovinces")
+
+icsout$result |>
+  filter(selected) |>
+  plot_funs(H_dual, color = index) +
+  geom_hline(yintercept = 1 / diff(icsout$result$H_dual[[1]]$basis$rangeval), linetype = "dotted") +
+  labs(x = "temperature (deg. Celsius)", y = "density") +
+  scale_color_manual(values = scales::pal_hue()(9)[1:2]) +
+  theme_legend_inside
+```
+
+The scree plot on the left panel of @fig-vnt_climate_regions_screedist clearly indicates that we
+should retain the first two invariant components. The right panel of
+@fig-vnt_climate_regions_screedist shows the squared ICS
+distances based on these first two components, with the observations
+index on the $x$-axis and with a threshold (horizontal line)
+corresponding to a significance level of $2.5\%$. This plot reveals that
+several observations are distinctly above this threshold, especially for
+the years 1987 and 2010.
+
+The left panel of @fig-vnt_climate_regions_eigdensscat displays the scatter plot
+of the first two components, labelled by year. The densities are
+coloured by province for the outliers and coloured in grey for the other
+provinces. This plot reveals that the outliers are either densities from
+2010 (and one density from 1998) that are outlying on the first
+component, or densities from 1987 and 2007 that are outlying on the
+second component.
+
+To interpret the outlyingness, we can use the dual eigendensities
+plotted in the right panel of @fig-vnt_climate_regions_eigdensscat together with @fig-vnt_climate_regions_densout, which represents the densities
+and their centred log-ratio transformation, colour-coded by year for the
+outliers and in grey for the other observations. This is justified by
+the reconstruction formula of @prp-reconstruction in the Appendix. The horizontal line on
+the eigendensities plot (right plot of @fig-vnt_climate_regions_eigdensscat) corresponds to the uniform
+density on the interval $[5;40]$. Four provinces in 2010 are outlying
+with large positive values on the first invariant component (see the
+left panel of @fig-vnt_climate_regions_eigdensscat). The first eigendensity
+IC.1 is characterised by a smaller mass of the temperature values on the
+interval $[5;20]$, compared to the uniform distribution, a mass similar
+to the uniform on $[20;35]$, and a much larger mass than the uniform on
+the interval $[35;40]$. These four observations correspond to the four
+blue curves on the left and right panels of @fig-vnt_climate_regions_densout. Compared to the other
+densities, these four densities exhibit relatively lighter tails on the
+lower end of the temperature spectrum and heavier tails on the higher
+end. For temperature values in the medium range, these four observations
+fall in the middle of the cloud of densities and of clr transformed
+densities. On the second invariant component, six observations take
+large values and are detected as outliers. They correspond to four
+provinces in 1987 and three in 2007 (see the left panel of @fig-vnt_climate_regions_eigdensscat). The second eigendensity
+IC.2 differs greatly from the uniform distribution on the whole interval
+of temperature values. The left tail is much lighter while the right
+tail is much heavier. Besides the six observations flagged as outliers,
+other provinces in 1987 and 2007 take large values on IC.2, and
+correspond to densities with very few days with maximum temperature less
+than 15 degrees Celsius compared to other densities.
+
+```{r fig-vnt_climate_regions_densout}
+#| fig-cap: Maximum temperature densities (left panel) and their centred
+#|   log-ratio transforms (right panel) for the 13 provinces in the S3
+#|   climate region of Northern Vietnam, 1987-2016, outlying densities are
+#|   colour-coded by year.
+#| fig-subcap: ""
+#| fig-width: 7.5
+#| fig-height: 5
+#| layout-ncol: 2
+
+vnt |>
+  mutate(year = as.factor(ifelse(outlying == 1, year, NA))) |>
+  arrange(outlying) |>
+  plot_funs(t_max, color = year, alpha = outlying) +
+  theme_legend_inside +
+  labs(
+    x = "temperature (deg. Celsius)", y = "density",
+    color = "outlying\nyears"
+  ) +
+  scale_color_discrete(limits = function(x) ifelse(is.na(x), "", x)) +
+  guides(alpha = "none")
+
+vnt |>
+  mutate(
+    t_max = as.fd(center(t_max)),
+    year = as.factor(ifelse(outlying == 1, year, NA))
+  ) |>
+  arrange(outlying) |>
+  plot_funs(t_max, color = year, alpha = outlying) +
+  theme(legend.position = "none") +
+  labs(
+    x = "temperature (deg. Celsius)", y = "centred clr(density)",
+    color = "outlying\nyears"
+  )
+```
+
+## Influence of the preprocessing parameters {#sec-app_smooth}
+
+```{r fig-vnt_climate_regions_grid_outliers}
+#| fig-cap: Outlier detection by ICS across smoothing parameters for the Vietnam
+#|   climate data. *Top:* 2 invariant components selected; *Bottom:* automatic
+#|   selection through D'Agostino tests. *$y$-axis:* year; *$x$-axis:* $\lambda$
+#|   parameter. Columns correspond to knot numbers (5-25). Outliers are
+#|   marked as light gray to black squares depending on their detection
+#|   frequency.
+#| fig-width: 11.25
+#| fig-height: 7.5
+
+knots_pos_seq <- "quantiles"
+nknots_seq <- 5 * 1:5
+lambda_seq <- 10^(-2:2)
+index_seq <- c(2, NA)
+
+param_grid <- expand.grid(
+  knots_pos = knots_pos_seq,
+  nknots = nknots_seq,
+  lambda = lambda_seq,
+  index = index_seq
+) |>
+  arrange(nknots, knots_pos, lambda)
+
+if (!file.exists("data/vnt_climate_regions.RData")) {
+  system.time(
+    ics_grid <- param_grid |>
+      mutate(id = seq_len(n())) |>
+      rowwise() |>
+      mutate(res = list(smooth_ICS(vntcr, knots_pos, nknots, lambda, index)))
+  )
+  save(ics_grid, file = "data/vnt_climate_regions.RData")
+}
+
+load("data/vnt_climate_regions.RData")
+
+ics_grid_out <- ics_grid |>
+  rowwise() |>
+  filter(!(any(class(res$ics_out) == "error"))) |>
+  mutate(res = list(data.frame(
+    obs_id = seq_len(length((res$ics_out$outliers))),
+    outlying = res$ics_out$outliers == 1
+  ))) |>
+  unnest(res)
+
+ics_grid_out |>
+  mutate(index = ifelse(is.na(index), "auto. selection of ICs",
+    paste(index, "ICs selected")
+  )) |>
+  rename(index_select = index) |>
+  left_join(vnt |> mutate(obs_id = row_number()) |> select(!outlying), by = c("obs_id")) |>
+  group_by(nknots, lambda, index_select, year) |>
+  mutate(n_outlying = sum(outlying) / 13) |>
+  ggplot(aes(log10(lambda), year, fill = n_outlying, alpha = n_outlying)) +
+  geom_tile() +
+  scale_alpha_continuous(range = c(0, 1)) +
+  scale_fill_gradient(low = "white", high = "black") +
+  facet_grid(cols = vars(nknots), rows = vars(index_select)) +
+  labs(y = "year", fill = "outlier\nfrequency", alpha = "") +
+  guides(alpha = "none")
+```
+
+```{r fig-vnt_climate_regions_grid_summary}
+#| fig-cap: Frequency of outlier detection by ICS across all 25 scenarios with
+#|   varying smoothing parameters and all 13 provinces, for each year in the
+#|   Vietnamese climate dataset.
+#| fig-width: 11.25
+#| fig-height: 7.5
+
+ics_grid_summary <- ics_grid_out |>
+  mutate(outlying = ifelse(outlying, 1, 0)) |>
+  group_by(obs_id) |>
+  summarise(n_outlying = sum(outlying)) |>
+  left_join(vnt |> mutate(obs_id = row_number()), by = c("obs_id")) |>
+  select(obs_id, province, year, n_outlying)
+
+ics_grid_summary |>
+  ggplot(aes(year, n_outlying)) +
+  geom_bar(stat = "identity") +
+  labs(y = "outlier detection frequency")
+```
+
+As mentioned in @sec-toyex, we can validate the atypical nature of
+observations by running the ICSOutlier procedure multiple times with
+varying smoothing parameter values. Following the rule of thumb of one
+dimension per 10 observations, with 390 observations, we should consider
+less than 35 interior knots. In what follows, we take 5, 10, 15, 20 and
+25 interior knots and we consider base-10 logarithm values for $\lambda$
+equal to -2, -1, 0, 1 and 2. The number of selected ICS components is
+either fixed equal to 2, or is automatically determined using the
+D'Agostino normality test described in @sec-icsout.
+We compute the squared ICS distances of the 390 observations, and
+observations are classified as outliers when their squared distance
+exceeds the threshold based on a $2.5\%$ level as detailed in @sec-icsout.
+
+We plot in @fig-vnt_climate_regions_grid_outliers the years on the $y$-axes for
+the 25 smoothing parameter setups, indicating outlying years with light
+gray to black squares depending on their detection frequency. @fig-vnt_climate_regions_grid_summary displays a bar plot of
+the frequency of outlier detection (across the 25 setups and the 13
+provinces) for each year. Note that the choice of the number of selected
+invariant components has minimal impact. Both @fig-vnt_climate_regions_grid_outliers and
+@fig-vnt_climate_regions_grid_summary confirm the results of
+the previous section. Most provinces are outlying in 1987 and several
+are also outlying in 2007 and 2010. For large values of $\lambda$, many
+provinces are also detected as outliers in 2016. Some provinces are
+detected quite often over the years: THANH HOA, HAI PHONG and HOA BINH.
+Note that in [@stojanovic_trends_2020], the province of THANH HOA
+extends across two climatic regions (S3 and S4) which could explain why
+it is very often detected as an outlier.
+
+An overall comment regarding the outlier detection procedure that we use
+in the present application is that, from our experience on other data
+sets, an outlying density is often characterised by a behaviour that
+differs from the other densities in the tails of the distribution. This
+is not surprising because the Bayes inner product defined by equation
+@eq-innerpdt involves the ratio of densities which can be
+large when a density is small (at the tails of the distribution).
+
+# Conclusion and perspectives {#sec-conclusion}
+
+We propose a coordinate-free presentation of ICS that allows ICS to be
+applied to more complex objects than the coordinates vectors of
+multivariate analysis. We focus on the case of distributional data and
+describe an outlier detection procedure based on ICS. However, one of
+the limitations of the coordinate-free approach is that it is mainly
+adapted to pairs of weighted covariance operators, because they have a
+coordinate-free definition. These pairs of operators include the
+well-known $(\operatorname{Cov}, \operatorname{Cov}_4)$ pair. Its
+scatter counterpart in the multivariate context is the one recommended
+by @archimbaud_detection_2018 for a small proportion of outliers. But it
+is unclear how we could generalise other well-known scatter matrices
+(such as M-estimators, pairwise-based weighted estimators, or Minimum
+Covariance Determinant estimators) which are useful when using ICS as a
+preprocessing step for clustering [see @alfons_tandem_2024].
+
+Concerning a further adaptation of ICSOutlier to density objects, one
+perspective to our work is to take into account different settings for
+the preprocessing parameters and aggregate the results in a single
+outlyingness index. Another perspective is to consider multivariate
+densities (e.g., not only maximum density temperature but also minimum
+density temperature, precipitation,...) and generalise the ICSOutlier
+procedure as in [@archimbaud_ics_2022] for multivariate functional data.
+
+This coordinate-free framework for ICS lays the groundwork for a
+generalisation to infinite-dimensional Hilbert spaces. Many difficulties
+arise, such as the compactness of the covariance operator which makes it
+non surjective, so that one cannot easily define a Mahalanobis distance,
+on which our definition of weighted covariance operators relies.
+Moreover, the existence of solutions and other properties of ICS proved
+in this paper come from the fact that one of the scatter operators is an
+automorphism, so it cannot be compact (in particular not the
+covariance). Finally, @tyler_note_2010 proved that, whenever the
+dimension $p$ is larger than the number of observations $n$, all affine
+equivariant scatter operators are proportional, which is a bad omen for
+a straight generalisation to infinite-dimensional Hilbert spaces. One
+can partially circumvent these difficulties by assuming that the data is
+almost surely in a deterministic finite-dimensional subspace $E$ of $H$
+(which is the case for density data after our preprocessing) and
+applying coordinate-free ICS. Another option could be to alleviate the
+affine equivariance assumption.
+
+# Acknowledgments {.appendix .unnumbered}
+
+The major part of this work was completed while the authors were
+visiting the Vietnam Institute for Advanced Study in Mathematics (VIASM)
+in Hanoi and the authors express their gratitude to VIASM. This paper
+has also been funded by the Agence Nationale de la Recherche under grant
+ANR-17-EURE-0010 (Investissements d'Avenir program). We thank Thibault
+Laurent for attracting our attention on the climate regions partition of
+Vietnam. We also thank the two reviewers who gave us constructive
+comments that allowed us to improve our article.
+
+
+# Appendix {.appendix .unnumbered}
+
+## Scatter operators for random objects in a Hilbert space {.appendix .unnumbered}
+
+Let us first discuss some definitions relative to scatter operators in
+the framework of a Hilbert space $(E, \langle \cdot, \cdot \rangle)$. We
+consider an $E$-valued random object $X: \Omega \rightarrow E$ where
+$\Omega$ is a probability space and $E$ is a Hilbert space equipped with
+the Borel $\sigma$-algebra. In order to define ICS, we need at least two
+scatter operators, which generalise the covariance operator defined on
+$E$ by
+$$\forall (x,y) \in E^2, \langle \operatorname{Cov} [X] x, y \rangle = \mathbb E \left[ \langle X - \mathbb EX, x \rangle \langle X - \mathbb EX, y \rangle \right],$${#eq-cov}
+while keeping its affine equivariance property:
+$$\forall A \in \mathcal{GL} (E), \forall b \in E, \operatorname{Cov} [AX+b] = A \operatorname{Cov} [X] A^*,$$
+where the Hilbert norm of $X$ is assumed to be square-integrable, and
+$A^*$ is the adjoint linear operator of $A$ in the Hilbert space $E$,
+represented by the transpose of the matrix that represents $A$.
+
+::: {#def-scatter}
+# Scatter operators
+Let $(E, \langle \cdot, \cdot \rangle)$ be a Hilbert space of dimension $p$,
+$\mathcal E$ an affine invariant set of $E$-valued random objects,
+i.e. that verifies:
+$$\forall X \in \mathcal E, \forall A \in \mathcal{GL} (E), \forall b \in E, AX+b \in \mathcal E.$${#eq-affine-inv-set}
+An operator $S: \mathcal E \rightarrow \mathcal S^+ (E)$ (where
+$\mathcal S^+ (E)$ is the space of non-negative symmetric operators on
+$E$) is called an (affine equivariant) scatter operator (defined on
+$\mathcal E$) if it satisfies the following two properties:
+
+1.  Invariance by equality in distribution:
+    $$\forall (X,Y) \in \mathcal E^2, X \sim Y \Rightarrow S[X] = S[Y].$$
+
+2.  Affine equivariance:
+    $$\forall X \in \mathcal E, \forall A \in \mathcal{GL} (E), \forall b \in E, S[AX+b] = A S[X] A^*.$$
+:::
+
+We do not know whether there exist other scatter operators than the
+covariance when the Hilbert space has infinite dimension.
+
+## Details on coordinate-free ICS {.appendix .unnumbered}
+
+The problem $\operatorname{ICS} (X, S_1, S_2)$ defined by
+@eq-icsdef is equivalent to assuming that $S_1 [X]$ is
+injective and finding an orthonormal basis $H$ that diagonalises the
+non-negative symmetric operator $S_1 [X]^{-1} S_2 [X]$ in the Euclidean
+space $(E, \langle S_1[X] \cdot, \cdot \rangle)$. The
+$\operatorname{ICS} (X,{S_1},{S_2})$ spectrum $\Lambda$ is unique and is
+simply the spectrum of $S_1 [X]^{-1} S_2 [X]$.
+
+::: {#prp-existence}
+# Existence of solutions
+Let $(E, \langle \cdot, \cdot \rangle)$ be a Euclidean space of dimension
+$p$, $\mathcal E \subseteq L^1 (\Omega, E)$ an affine invariant set of
+integrable $E$-valued random objects, $S_1$ and $S_2$ two scatter
+operators on $\mathcal E$. For any $X \in \mathcal E$ such that
+$S_1 [X]$ is an automorphism, there exists at least one solution
+$(H, \Lambda)$ to the problem $\operatorname{ICS}(X, S_1, S_2)$, and
+$\Lambda$ is a uniquely determined non-increasing sequence of positive
+real numbers.
+:::
+
+::: {.proof}
+Since $S_1 [X]$ is non-singular, $S_1 [X]^{-1} S_2 [X]$ exists
+and is symmetric in the Euclidean space
+$(E, \langle {S_1}[X] \cdot, \cdot \rangle)$, because $$\begin{aligned}
+\forall (x,y) \in E^2, \langle S_1[X]  S_1 [X]^{-1} S_2 [X] x, y \rangle &= \langle S_2 [X]x, y \rangle = \langle S_2 [X] y, x \rangle \\
+&= \langle S_1[X] S_1 [X]^{-1} S_2 [X] y, x \rangle.
+\end{aligned}$$ Thus, the spectral theorem guarantees that there exists
+an orthonormal basis $H$ of $(E, \langle {S_1}[X] \cdot, \cdot \rangle)$
+in which $S_1 [X]^{-1} S_2[X]$ is diagonal. 
+:::
+
+This methodology does not generalise to the infinite-dimensional case,
+because the inner product space
+$(\mathcal H, \langle \cdot, S_1 [X] \cdot \rangle)$ is not necessarily
+complete, so the spectral theorem does not apply.
+
+::: {.remark}
+# Courant-Fischer variational principle
+The ICS problem @eq-icsdef can be stated as a maximisation problem. If
+$1 \leq j \leq p$, the following equalities hold:
+$$h_j \in \underset{h \in E, \langle S_1 [X] h, h_{j'} \rangle = 0 \text{ if } 0 < j' < j}{\operatorname{argmax}} \frac{\langle{S_2} [X] h, h \rangle}{\langle{S_1} [X] h, h \rangle} \;\text{ and }\;
+\lambda_j = \max_{h \in E, \langle S_1 [X] h, h_{j'} \rangle = 0 \text { if } 0 < j' < j} \frac{\langle{S_2} [X] h, h \rangle}{\langle{S_1} [X] h, h \rangle}.$${#eq-Courant}
+:::
+
+The following reconstruction formula, extended from multivariate to
+complex data, is useful to interpret the ICS dual eigenbasis
+$H^* = (h^*_j)_{1 \leq j \leq p}$, which is defined as the only basis of
+the space $E$ that satisfies
+$$\langle h_j, h^*_{j'} \rangle = \delta_{jj'} \text{ for all }1 \leq j, j' \leq p.$$
+
+::: {#prp-reconstruction}
+# Reconstruction formula
+Let $(E, \langle \cdot, \cdot \rangle)$ be a Euclidean space of dimension
+$p$, $\mathcal E \subseteq L^1 (\Omega, E)$ an affine invariant set of
+integrable $E$-valued random objects, $S_1$ and $S_2$ two scatter
+operators on $\mathcal E$. For any $X \in \mathcal E$ such that
+$S_1 [X]$ is an automorphism and any $\operatorname{ICS}(X, S_1, S_2)$
+eigenbasis ${H} = (h_1, \dots, h_p)$ of $E$, we have
+$$X = \mathbb EX + \sum_{j=1}^p z_j h^*_j,$$ where the
+$z_j, 1 \leq j \leq p$ are defined as in
+@eq-ic and
+$H^* = (h^*_j)_{1 \leq j \leq p} = ({S_1} [X] h_j)_{1 \leq j \leq p}$ is
+the dual basis of $H$.
+:::
+
+## Reminder on Bayes spaces {.appendix .unnumbered}
+
+The most recent and complete description of the Bayes spaces approach
+can be found in [@van_den_boogaart_bayes_2014]. For the present work, we
+will identify the elements of a Bayes space, as defined by
+@van_den_boogaart_bayes_2014, with their Radon--Nikodym derivative with
+respect to a reference measure $\lambda$. This leads to the following
+framework: let $(a,b)$ be a given interval of the real line equipped
+with the Borel $\sigma$-algebra, let $\lambda$ be a finite reference
+measure on $(a,b)$. Let $B^2(a,b)$ be the space of square-log integrable
+probability densities $\frac{d\mu}{d\lambda},$ where $\mu$ is a measure
+that is equivalent to $\lambda$, which means that $\mu$ and $\lambda$
+are absolutely continuous with respect to each other.
+
+Note that the simplex $\mathcal S^p$ used in compositional data analysis
+can be seen as a Bayes space when considering, instead of an interval
+$(a,b)$ equipped with the Lebesgue measure, the finite set
+$\{1, \dots, p+1\}$ equipped with the counting measure [see Example 2 in
+@van_den_boogaart_bayes_2014].
+
+Let us first briefly recall the construction of the Hilbert space
+structure of $B^2(a,b)$. For a density $f$ in $B^2(a,b)$, the clr
+transformation is defined by
+$$\operatorname{clr} f(.) = \log f(.) - \frac{1}{\lambda(a,b)}\int_{a}^{b}\log
+    f(t)d\lambda(t).$$ The clr transformation maps an element of
+$B^2(a,b)$ into an element of the space $L^2_0(a,b)$ of functions which
+are square-integrable with respect to $\lambda$ on $(a,b)$ and whose
+integral is equal to zero. The clr inverse of a function $u$ of
+$L^2_0(a,b)$ is ${B}^2$-equivalent to $\exp(u).$ More precisely, if
+$u \in L^2_0 (a,b),$
+$$\operatorname{clr}^{-1}(u)(.) = \frac{\exp u(.)}{\int_a^b \exp{u(t)  d\lambda(t)}}.$$
+A vector space structure on $B^2(a,b)$ is readily obtained by
+transporting the vector space structure of $L^2_0 (a,b)$ to $B^2(a,b)$
+using the clr transformation and its inverse, see for example
+@van_den_boogaart_bayes_2014. Its operations, denoted by $\oplus$ and
+$\odot$, are called perturbation (the "addition") and powering (the
+"scalar multiplication").
+
+For the definition of the inner product, we adopt a normalization
+different from that of @egozcue_hilbert_2006 and of
+@van_den_boogaart_bayes_2014 in the sense that we choose the classical
+definition of inner product in $L^2_0(a,b),$ for two functions $u$ and
+$v$ in $L^2_0 (a,b)$
+$$\langle u,v \rangle_{L^2_0} = \int_a^b u(t)v(t)d\lambda(t),$${#eq-inner} so
+that the corresponding inner product between two densities $f$ and $g$
+in the Bayes space $B^2(a,b)$ is given by
+$$\langle f ,g \rangle_{B^2} = \frac{1}{2 \lambda(a,b)}\int_a^b \int_a^b 
+    (\log f(t) - \log f(s))
+    (\log g(t) - \log g(s))
+    d \lambda(t)d \lambda(s).$${#eq-innerpdt}
+This normalization yields an inner
+product which is homogeneous to the measure $\lambda$ whereas the
+@van_den_boogaart_bayes_2014 normalization is unitless. Note that, for
+clarity and improved readability, the interval over which the spaces
+$L^2_0$ and $B^2$ are defined are omitted from some notations.
+
+For a random density $f(.)$ in the infinite-dimensional space
+${B}^2(a,b)$, the expectation and covariance operators can be defined as
+follows, whenever they exist: $$\begin{aligned}
+\mathbb{E}^{B^2} [ f ] &= \operatorname{clr}^{-1} \mathbb{E} [ \operatorname{clr} f] \in {B}^2 (a,b) \\
+\operatorname{Cov}^{B^2} [f] g &= \mathbb{E}^{B^2} \left[ \langle f \ominus \mathbb{E}^{B^2} [ f ], g \rangle_{B^2} \odot ( f \ominus \mathbb{E}^{B^2} [ f ]) \right] \nonumber \\
+&= \operatorname{clr}^{-1}\mathbb{E} [ \langle f, g \rangle_{B^2} \operatorname{clr}f ]  \nonumber \\
+&= \operatorname{clr}^{-1}\mathbb{E} [ \langle \operatorname{clr}f, \operatorname{clr} g \rangle_{{ L}^2_0} \operatorname{clr}f ] \quad \text{ for any } g \in B^2(a,b),
+\end{aligned}$${#eq-covw2} where $\ominus$ is the negative perturbation defined by
+$f \ominus g = f \oplus [(-1) \odot g]$.
+
+## Reminder on compositional splines {.appendix .unnumbered}
+
+Following [@machalova_compositional_2021], in order to construct a basis
+of $E = \mathcal C^{\Delta \gamma}_d (a,b)$, which is required in
+practice, it is convenient to first construct a basis of a
+finite-dimensional spline subspace of $L^2_0(a,b)$, which we then
+transfer to $B^2(a,b)$ by the inverse $\operatorname{clr}$
+transformation. More precisely, @machalova_preprocessing_2016 propose a
+basis of zero-integral splines in $L^2_0(a,b)$ that are called
+ZB-splines. The corresponding inverse images of these basis functions by
+clr are called CB-splines.
+
+A ZB-spline basis, denoted by $Z = \{Z_1, \ldots, Z_{k+d-1}\},$ is
+characterised by the spline of degree less than or equal to $d$ (order
+$d+1$), the number $k$ and the positions of the so-called inside knots
+$\Delta \gamma = \{ \gamma_1, \ldots, \gamma_d\}$ in $(a,b)$. The
+dimension of the resulting subspace ${\cal Z}_d^{\Delta \gamma}$ is
+$p=k+d$. Let ${\cal C}_d^{\Delta \gamma}$ be the subspace generated by
+$C=\{C_1, \ldots, C_p\}$ in $B^2(a,b)$, where
+$C_j = \operatorname{clr}^{-1}(Z_j)$ are the back-transforms in
+$B^2(a,b)$ of the basis functions of the subspace
+${\cal Z}_d^{\Delta \gamma}$. The expansion of a density $f$ in
+$B^2(a,b)$ is then given by
+$$f(t) = \bigoplus_{j=1}^p [f]_{C_j} C_j(t),$${#eq-expan_B2}
+so that the corresponding
+expansion of its $\operatorname{clr}$ in $L^2_0(a,b)$ is given by
+$$\operatorname{clr} f(t) = \sum_{j=1}^p [f]_{C_j} Z_j(t).$${#eq-expan_L2}
+
+Note that the coordinates of $f$ in the basis $C$ are the same as the
+coordinates of $\operatorname{clr}(f)$ in the basis $Z$, for
+$j=1, \ldots, p, [f]_{C_j} = [\operatorname{clr} f]_{Z_j}.$ Following
+@machalova_preprocessing_2016, the basis functions of
+${\cal Z}_d^{\Delta \gamma}$ can be written in a B-spline basis, see
+@schumaker_spline_1981, which is convenient to allow using existing code
+for their computation.
+
+## Proofs {.appendix .unnumbered}
+
+::: {.proof}
+# @prp-isometry
+First, let us verify that the problem
+$\operatorname{ICS} (X^{\mathcal F}, S_1^{\mathcal F}, S_2^{\mathcal F})$
+is well defined on $F$:
+
+(a) The application $\varphi$ is linear so it is measurable. Moreover,
+    if $X \in \mathcal E$, $A \in \mathcal{GL} (F)$ and $b \in F$, then
+    $$\|\varphi(X)\|_F = \| X \|_E$$ and
+    $$A \varphi(X) + b = \varphi \left( \varphi^{-1} \circ A \circ \varphi (X) + \varphi^{-1}(b) \right) \text{ where } \varphi^{-1} \circ A \circ \varphi (X) + \varphi^{-1}(b) \in \mathcal E.$$
+
+(b) If $X \in \mathcal E$,
+    $S_\ell^{\mathcal F} [\varphi (X)] = \varphi \circ S_\ell^{\mathcal E} [X] \circ \varphi^{-1}$
+    is a non-negative symmetric operator and if $Y \in \mathcal E$
+    verifies $\varphi (X) \sim \varphi (Y)$, then $X \sim Y$ (because
+    the Borel $\sigma$-algebra on $E$ is the pullback by $\varphi$ of
+    that on $F$) so that, for $\ell \in \{ 1, 2 \}$,
+    $$S_\ell^{\mathcal F} [\varphi (X)] = \varphi \circ S_\ell^{\mathcal E} [X] \circ \varphi^{-1} = \varphi \circ S_\ell^{\mathcal E} [Y] \circ \varphi^{-1} = S_\ell^{\mathcal F} [\varphi (Y)]$$
+    and $$\begin{gathered}
+            S_\ell^{\mathcal F} [A \varphi(X) + b]
+            = \varphi \circ S_\ell^{\mathcal E} [\varphi^{-1} \circ A \circ \varphi (X) + \varphi^{-1}(b)] \circ \varphi^{-1} \\
+            = A \circ \varphi \circ S_\ell^{\mathcal E} [X] \circ \varphi^{-1} \circ A^*
+            = A S_\ell^{\mathcal F} [\varphi(X)] A^*.
+    \end{gathered}$$
+
+(c) The isometry $\varphi$ preserves the linear rank of any finite
+    sequence of vectors of $E$.
+
+Now, $(H^{\mathcal E}, \Lambda)$ solves
+$\operatorname{ICS} (X^{\mathcal E}, S_1^{\mathcal E}, S_2^{\mathcal E})$
+in the space $E$ if and only if $$\begin{aligned}
+    &\left\{
+    \begin{aligned}
+        \langle S_1^{\mathcal E} [X] h_j^{\mathcal E}, h_{j'}^{\mathcal E} \rangle_E &= \delta_{jj'} \text{ for all } 1 \leq j, j' \leq p  \\
+        \langle S_2^{\mathcal E} [X] h_j^{\mathcal E}, h_{j'}^{\mathcal E} \rangle_E &= \lambda_j \delta_{jj'} \text{ for all } 1 \leq j, j' \leq p 
+    \end{aligned}
+    \right. \\
+    \iff &\left\{
+    \begin{aligned}
+        \langle \varphi (S_1^{\mathcal E} [X] h_j^{\mathcal E}), \varphi (h_{j'}^{\mathcal E}) \rangle_F &= \delta_{jj'} \text{ for all } 1 \leq j, j' \leq p  \\
+        \langle \varphi (S_2^{\mathcal E} [X] h_j^{\mathcal E}), \varphi (h_{j'}^{\mathcal E}) \rangle_F &= \lambda_j \delta_{jj'} \text{ for all } 1 \leq j, j' \leq p 
+    \end{aligned}
+    \right. \\
+    \iff &\left\{
+    \begin{aligned}
+        \langle S_1^{\mathcal F} [X] h_j^{\mathcal F}, h_{j'}^{\mathcal F} \rangle_F &= \delta_{jj'} \text{ for all } 1 \leq j, j' \leq p  \\
+        \langle S_2^{\mathcal F} [X] h_j^{\mathcal F}, h_{j'}^{\mathcal F} \rangle_F &= \lambda_j \delta_{jj'} \text{ for all } 1 \leq j, j' \leq p,
+    \end{aligned}
+    \right.
+\end{aligned}$$ which is equivalent to the fact that
+$(H^{\mathcal F}, \Lambda)$ solves
+$\operatorname{ICS} (X^{\mathcal F}, S_1^{\mathcal F}, S_2^{\mathcal F})$
+in the space $F$. 
+:::
+
+::: {.proof}
+# @cor-isometry-covw
+Let $\ell \in \{ 1, 2 \}$ and $\tilde X = X - \mathbb EX$. In order to prove the equation
+@eq-isometry-covw, we will need to prove that, for any
+$(x,y) \in F^2$, $$\begin{aligned}
+    \langle \varphi \circ \operatorname{Cov}_{w_\ell}^E [X] \circ \varphi^{-1} (x), y \rangle_F
+    &= \langle \operatorname{Cov}_{w_\ell}^E [X] \varphi^{-1} (x), \varphi^{-1} (y) \rangle_E \\
+    &= \mathbb E [ w_\ell (\| \operatorname{Cov}^E [X]^{-1/2} \tilde X \|_E)^2 \langle \tilde X, \varphi^{-1} (x) \rangle_E \langle \tilde X, \varphi^{-1} (y) \rangle_E ] \\
+    &= \mathbb E [ w_\ell (\| \operatorname{Cov}^F [\varphi(X)]^{-1/2} \varphi(\tilde X) \|_F)^2 \langle \varphi(\tilde X), x \rangle_F \langle \varphi(\tilde X), y \rangle_F ]  \\
+    \langle \varphi \circ \operatorname{Cov}_{w_\ell}^E [X] \circ \varphi^{-1} (x), y \rangle_F
+    &= \langle \operatorname{Cov}_{w_\ell}^F [\varphi(X)] x, y \rangle_F.
+\end{aligned}$${#eq-cor-isometry-covw} It is enough to show the equality between
+@eq-cor-isometry-covw (2) and
+@eq-cor-isometry-covw (3), for which we treat differently the
+cases $w_\ell = 1$ and $w_\ell \neq 1$. If $w_\ell = 1$, there is
+nothing to prove, so that the equation
+@eq-isometry-covw holds for the covariance operator. If
+$w_\ell \neq 1$, we now know from the case $w_\ell = 1$ that
+$$\operatorname{Cov}^F [\varphi(X)]^{-1/2} = \varphi \circ \operatorname{Cov}^E [X]^{-1/2} \circ \varphi^{-1}$$
+so that
+$$\| \operatorname{Cov}^E [X]^{-1/2} \tilde X \|_E
+    = \| \operatorname{Cov}^F [\varphi(X)]^{-1/2} \varphi(\tilde X) \|_F$${#eq-isometry-mahalanobis}
+Once the equation
+@eq-isometry-covw is proved, one only needs to apply
+@prp-isometry to finish the proof. 
+:::
+
+::: {.proof}
+# @cor-coord
+Applying @cor-isometry-covw to the isometry
+$$\varphi_B: \left\{\begin{array}{ccc}
+        (E, \langle \cdot, \cdot \rangle_E) &\rightarrow& (\mathbb R^p, \langle \cdot, \cdot \rangle_{\mathbb R^p}) \\
+        x &\mapsto& G_B^{1/2} [x]_B,
+    \end{array}\right.$$ we obtain the equivalence between the following
+assertions:
+
+(i) $(H, \Lambda)$ solves
+    $\operatorname{ICS} (X, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+    in the space $E$
+
+(ii) $(G_B^{1/2} [H]_B, \Lambda)$ solves
+     $\operatorname{ICS} (G_B^{1/2} [X]_B, \operatorname{Cov}_{w_1}, \operatorname{Cov}_{w_2})$
+     in the space $\mathbb R^p$,
+
+which gives the equivalence between the assertions (1) and (2). The
+equivalence between the other assertions are deduced from the fact that
+for any $\ell \in \{ 1, 2 \}$ and any $(x,y) \in E^2$: $$\begin{aligned}
+\langle \operatorname{Cov}_{w_\ell}^E [X] x, y \rangle_E
+&= \langle \operatorname{Cov}_{w_\ell} (G_B^{1/2} [X]_B) G_B^{1/2} [x]_B, G_B^{1/2} [y]_B \rangle_{\mathbb R^p} \\
+&= \langle \operatorname{Cov}_{w_\ell} (G_B [X]_B) [x]_B, [y]_B \rangle_{\mathbb R^p} \\
+&= \langle \operatorname{Cov}_{w_\ell} ([X]_B) G_B [x]_B, G_B [y]_B \rangle_{\mathbb R^p},
+\end{aligned}$${#eq-cor-coord} where
+@eq-cor-coord (1) comes from the equation
+@eq-isometry-covw, and the equalities
+@eq-cor-coord (2) and
+@eq-cor-coord (3) come from the affine equivariance of
+$\operatorname{Cov}_{w_\ell}$. 
+:::
+
+::: {.proof}
+# @prp-reconstruction
+Let us decompose $S_1[X]^{-1} (X - \mathbb EX)$ over the basis $H$, which is orthonormal
+in $(E, \langle \cdot, S_1[X] \cdot \rangle)$: $$\begin{aligned}
+S_1[X]^{-1} (X - \mathbb EX)
+&= \sum_{j=1}^p \langle S_1[X]^{-1} (X - \mathbb EX), S_1[X] h_j \rangle h_j \\
+&= \sum_{j=1}^p \langle X - \mathbb EX, h_j \rangle h_j \\
+S_1[X]^{-1} (X - \mathbb EX)
+&= \sum_{j=1}^p z_j h_j.
+\end{aligned}$$ The dual basis $H^*$ of $H$ is the one that satisfies
+$\langle h_j, h^*_{j'} \rangle = \delta_{jj'}$ for all
+$1 \leq j, j' \leq p$ and we know from the definition of ICS that this
+holds for $(S_1[X] h_j)_{1 \leq j \leq p}$. 
+:::
+
+## Code & reproducibility {.appendix .unnumbered}
+
+In order to implement coordinate-free ICS, we created the R package
+`ICSFun`, which is used to generate the figures
+(see the code in this HTML version of the article).
