@@ -5,23 +5,21 @@ bibliography: references.bib
 cache: true
 citation: true
 df-print: kable
+fig-align: center
+fig-dpi: 600
 lang: en
 lightbox: true
 link-external-newwindow: true
 number-sections: true
-warning: false
 
 format:
   html:
     theme: zephyr
-    code-fold: true
     css: styles.css
-    execute:
-      echo: true
     fig-format: jpeg
     include-in-header:
       text: |
-        <script defer data-domain="camillemondon.com" src="https://analytics.mondon.xyz/js/script.js"></script>
+        <script defer data-domain="camillemondon.com" src="https://analytics.mndn.fr/js/script.js"></script>
   arxiv-pdf:
     authorcols: true
     biblatexoptions:
@@ -30,13 +28,8 @@ format:
       - backref=true
     cite-method: biblatex
     colorlinks: false
-    echo: false
     fig-format: pdf
+    fig-pos: ht
     link-citations: true
     notebook-links: false
     pdf-engine: pdflatex
-
-knitr:
-  opts_knit:
-    fig.align: center
-    root.dir: ./
