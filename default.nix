@@ -6,10 +6,6 @@ let
     inherit system;
     overlays = [
       (_: prev: {
-        quarto = prev.quarto.overrideAttrs (old: {
-          patches = (old.patches or [ ]) ++ [ ./panel-layout.patch ];
-        });
-
         rPackages = prev.rPackages.override {
           overrides = with prev.rPackages; {
             dda = buildRPackage {
