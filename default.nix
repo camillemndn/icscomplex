@@ -6,6 +6,13 @@ let
     inherit system;
     overlays = [
       (_: prev: {
+        quarto = (prev.quarto.override { }).overrideAttrs (oldAttrs: {
+          postPatch = (oldAttrs.postPatch or "") + ''
+            substituteInPlace bin/quarto.js \
+              --replace-fail "syntax-highlighting" "highlight-style"
+          '';
+        });
+
         rPackages = prev.rPackages.override {
           overrides = with prev.rPackages; {
             dda = buildRPackage {
@@ -34,7 +41,7 @@ let
                 owner = "camillemndn";
                 repo = "ICSFun";
                 rev = "v0.0.0.9001";
-                hash = "sha256-5hgcPy1l51Ifqnmh7ETjQ4YoF62b7XYhpW2KotUOM1U=";
+                hash = "sha256-QqLdXgslGIOydVt1hQkvlFKloAJ0agG8f8sg7TZ4I0o=";
               };
               propagatedBuildInputs = [
                 compositions
