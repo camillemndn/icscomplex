@@ -15,6 +15,7 @@ number-sections: true
 format:
   html:
     theme: zephyr
+    html-math-method: katex
     css: styles.css
     fig-format: jpeg
     include-in-header:
