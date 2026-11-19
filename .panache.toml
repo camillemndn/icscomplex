@@ -1,0 +1,31 @@
+crossref-prefixes = ["hyp"]
+
+[format]
+wrap = "sentence"
+math = "single-line"
+math-delimiter-style = "dollars"
+no-break-abbreviations = ["Pr.", "Dr.", "resp.", "max."]
+table-indent = 0
+tab-stops = "normalize"
+tab-width = 2
+
+[formatters]
+r = "air"
+python = "ruff"
+
+# The air preset formats a temporary file outside the project, where air does not
+# find air.toml. Reading from stdin with a path in the project makes air look
+# for its configuration from the working directory instead.
+[formatters.air]
+args = ["format", "--stdin-file-path", "chunk.R"]
+stdin = true
+
+[linters]
+r = "arity"
+python = "ruff"
+
+[lint.rules]
+undefined-references = false
+citation-keys = false
+missing-chunk-labels = false
+heading-hierarchy = false
