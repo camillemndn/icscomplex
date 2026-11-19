@@ -20,8 +20,8 @@ let
               src = pkgs.fetchFromGitHub {
                 owner = "camillemndn";
                 repo = "dda";
-                rev = "v0.0.0.9019";
-                hash = "sha256-yCwR9+pEULJ4s6nseWIg/xSrE1wj1mXyvPaJLQF7hH8=";
+                rev = "v0.0.0.9021";
+                hash = "sha256-aIlpJ2Mea0huPTjvzVbaaJIpBJq/hSM8moLxgBCpU7g=";
               };
               nativeBuildInputs = [
                 pkgs.cargo
