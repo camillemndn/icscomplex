@@ -1,0 +1,16 @@
+--- a/share/filters/main.lua	2026-11-19 15:05:22.739620474 +0100
++++ b/share/filters/main.lua	2026-11-19 15:05:22.755673455 +0100
+@@ -25249,7 +25249,12 @@
+   end
+ 
+   if layout.preamble then
+-    panel_content:insert(1, layout.preamble)
++    -- the preamble may be a Blocks list, which cannot be nested in Blocks
++    if pandoc.utils.type(layout.preamble) == "Blocks" then
++      panel_content = layout.preamble .. panel_content
++    else
++      panel_content:insert(1, layout.preamble)
++    end
+   end
+   return pandoc.Div(panel_content, attr)
+ end

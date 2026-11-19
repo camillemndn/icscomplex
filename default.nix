@@ -6,12 +6,44 @@ let
     inherit system;
     overlays = [
       (_: prev: {
-        quarto = (prev.quarto.override { }).overrideAttrs (oldAttrs: {
-          postPatch = (oldAttrs.postPatch or "") + ''
-            substituteInPlace bin/quarto.js \
-              --replace-fail "syntax-highlighting" "highlight-style"
-          '';
-        });
+        quarto =
+          (prev.quarto.override {
+            pandoc = prev.stdenvNoCC.mkDerivation (finalAttrs: {
+              pname = "pandoc-cli";
+              version = "3.10";
+              src = prev.fetchurl {
+                url = "https://github.com/jgm/pandoc/releases/download/${finalAttrs.version}/pandoc-${finalAttrs.version}-linux-amd64.tar.gz";
+                hash = "sha256-4PivYtDyZ9IrqlvO/m1d2joJfMxg3nlLdZ/gMVmSMkQ=";
+              };
+              nativeBuildInputs = [ pkgs.autoPatchelfHook ];
+              buildInputs = with prev; [
+                stdenv.cc.cc.lib
+                zlib
+              ];
+              installPhase = ''
+                install -Dm755 bin/pandoc $out/bin/pandoc
+                ln -s pandoc $out/bin/pandoc-cli
+              '';
+              meta.mainProgram = "pandoc";
+            });
+          }).overrideAttrs
+            (
+              finalAttrs: old: {
+                version = "1.10.18";
+
+                src = prev.fetchurl {
+                  url = "https://github.com/quarto-dev/quarto-cli/releases/download/v${finalAttrs.version}/quarto-${finalAttrs.version}-linux-amd64.tar.gz";
+                  hash = "sha256-r60HG1vSLALy0wBpV0MYnTZQ4FN6Uwc+ZUtjDP8rDHM=";
+                };
+
+                patches = (old.patches or [ ]) ++ [
+                  ./mermaid-pdf.patch
+                  # The ipynb renderer nests a Blocks preamble of layout-ncol figures, which
+                  # pandoc 3.10 rejects in pandoc.Div (manuscript notebook output).
+                  ./quarto-ipynb-layout.patch
+                ];
+              }
+            );
 
         rPackages = prev.rPackages.override {
           overrides = with prev.rPackages; {

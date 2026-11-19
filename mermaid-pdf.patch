@@ -1,0 +1,73 @@
+--- a/bin/quarto.js
++++ b/bin/quarto.js
+@@ -119884,7 +119884,7 @@
+ object:
+   properties:
+     mermaid-format:
+-      enum: [png, svg, js]
++      enum: [png, svg, js, pdf]
+     theme:
+       anyOf:
+         - null
+@@ -120134,6 +120134,52 @@
+         );
+       }
+     };
++    const makePdf = async () => {
++      const cellContent2 = handlerContext.cellContent(cell);
++      const { sourceName, fullName } = handlerContext.uniqueFigureName(
++        "mermaid-figure-",
++        ".pdf"
++      );
++      const mmdFile = fullName.replace(/\.pdf$/, ".mmd");
++      const svgFile = fullName.replace(/\.pdf$/, ".svg");
++      const puppeteerCfg = fullName.replace(/\.pdf$/, "-puppeteer.json");
++      const mermaidCfg = fullName.replace(/\.pdf$/, "-mermaid.json");
++      Deno.writeTextFileSync(mmdFile, cellContent2.value);
++      Deno.writeTextFileSync(puppeteerCfg, JSON.stringify({
++        args: ["--no-sandbox", "--allow-file-access-from-files", "--disable-web-security"]
++      }));
++      Deno.writeTextFileSync(mermaidCfg, JSON.stringify({
++        fontFamily: "sans-serif"
++      }));
++      const mmdcSvg = new Deno.Command("mmdc", {
++        args: ["-i", mmdFile, "--outputFormat=svg", "-p", puppeteerCfg, "-c", mermaidCfg, "-o", svgFile],
++        stdout: "inherit",
++        stderr: "inherit"
++      });
++      const svgResult = await mmdcSvg.output();
++      if (!svgResult.success) {
++        throw new Error("mmdc failed to render mermaid diagram to SVG");
++      }
++      const svgText = Deno.readTextFileSync(svgFile);
++      const mmdcPdf = new Deno.Command("mmdc", {
++        args: ["-i", mmdFile, "--outputFormat=pdf", "--pdfFit", "-p", puppeteerCfg, "-c", mermaidCfg, "-o", fullName],
++        stdout: "inherit",
++        stderr: "inherit"
++      });
++      const pdfResult = await mmdcPdf.output();
++      if (!pdfResult.success) {
++        throw new Error("mmdc failed to render mermaid diagram to PDF");
++      }
++      const { widthInInches, heightInInches } = await resolveSize(svgText, cell.options ?? {});
++      return this.build(
++        handlerContext,
++        cell,
++        asMappedString(makeFigLink(sourceName, widthInInches, heightInInches)),
++        options,
++        void 0,
++        /* @__PURE__ */ new Set(["fig-width", "fig-height", "mermaid-format"])
++      );
++    };
+     const makeJs = async () => {
+       setupMermaidJsRuntime();
+       const preAttrs = [];
+@@ -120185,6 +120231,8 @@
+       return await makeSvg();
+     } else if (format14 === "png") {
+       return await makePng();
++    } else if (format14 === "pdf") {
++      return await makePdf();
+     } else if (format14 === "js") {
+       if (!isJavascriptCompatible(handlerContext.options.format)) {
+         const error2 = new LocalizedError3(
